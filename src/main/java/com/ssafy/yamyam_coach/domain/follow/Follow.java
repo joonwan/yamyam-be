@@ -21,7 +21,7 @@ public class Follow {
 
     // ID 제외, 팔로우 관계 생성용 빌더
     @Builder
-    public Follow(Long followerId, Long followedId, LocalDateTime createdAt) {
+    private Follow(Long followerId, Long followedId, LocalDateTime createdAt) {
         this.followerId = followerId;
         this.followedId = followedId;
         this.createdAt = createdAt;

@@ -21,9 +21,10 @@ public class ChallengeParticipation {
 
     // ID 제외, 참여 정보 생성용 빌더
     @Builder
-    public ChallengeParticipation(Long userId, Long challengeId, String status) {
+    private ChallengeParticipation(Long userId, Long challengeId, String status, LocalDateTime created_at) {
         this.userId = userId;
         this.challengeId = challengeId;
         this.status = status;
+        this.created_at = created_at;
     }
 }

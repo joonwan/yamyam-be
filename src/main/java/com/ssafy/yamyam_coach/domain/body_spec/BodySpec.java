@@ -24,12 +24,12 @@ public class BodySpec {
 
     // ID는 DB 자동 생성이므로 제외, 측정 데이터 입력용 빌더
     @Builder
-    public BodySpec(Long userId, int height, int weight, int age, String gender, LocalDateTime date) {
+    private BodySpec(Long userId, int height, int weight, int age, String gender, LocalDateTime created_at) {
         this.userId = userId;
         this.height = height;
         this.weight = weight;
         this.age = age;
         this.gender = gender;
-        this.date = date;
+        this.created_at = created_at;
     }
 }

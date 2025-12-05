@@ -24,7 +24,7 @@ public class Challenge {
 
     // ID 제외, 챌린지 생성 시 필요한 정보만 담는 빌더
     @Builder
-    public Challenge(String title, String description, LocalDateTime startDate, LocalDateTime endDate, LocalDateTime createdAt) {
+    private Challenge(String title, String description, LocalDateTime startDate, LocalDateTime endDate, LocalDateTime createdAt) {
         this.title = title;
         this.description = description;
         this.startDate = startDate;

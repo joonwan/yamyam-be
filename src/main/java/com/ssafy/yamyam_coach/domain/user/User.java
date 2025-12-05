@@ -22,7 +22,7 @@ public class User {
     private LocalDateTime updatedAt;
 
     @Builder
-    public User(String email, String password, String nickname, String name, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    private User(String email, String password, String nickname, String name, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
