@@ -23,9 +23,14 @@ public class FoodController {
     @GetMapping("/search")
     public ResponseEntity<List<SearchFoodServiceResponse>> searchFood(@RequestParam String name) {
         log.debug("[FoodController.searchFood]: 메서드 수행 시작");
-        log.debug("name: {}", name);
 
-        return ResponseEntity.ok(foodService.searchFood(name.trim()));
+        long startMillis = System.currentTimeMillis();
+        List<SearchFoodServiceResponse> searchResult = foodService.searchFood(name.trim());
+
+        long endMillis = System.currentTimeMillis();
+        log.debug("[FoodController.searchFood]: 메서드 수행 종료. 수행시간 {}ms", (endMillis - startMillis));
+
+        return ResponseEntity.ok(searchResult);
     }
 
 }
