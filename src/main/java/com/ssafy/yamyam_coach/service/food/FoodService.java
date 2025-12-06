@@ -28,6 +28,7 @@ public class FoodService {
 
     private SearchFoodServiceResponse toSearchFoodServiceResponse(Food food) {
         SearchFoodServiceResponse response = SearchFoodServiceResponse.builder()
+                .foodId(food.getId())
                 .name(food.getName())
                 .category(food.getCategory())
                 .build();

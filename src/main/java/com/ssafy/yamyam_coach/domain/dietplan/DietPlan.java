@@ -2,6 +2,7 @@ package com.ssafy.yamyam_coach.domain.dietplan;
 
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -15,13 +16,13 @@ public class DietPlan {
     private String content;
     private boolean isShared;
 
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     @Builder
-    private DietPlan(Long userId, String title, String content, boolean isShared, LocalDateTime startDate, LocalDateTime endDate, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    private DietPlan(Long userId, String title, String content, boolean isShared, LocalDate startDate, LocalDate endDate, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.userId = userId;
         this.title = title;
         this.content = content;
