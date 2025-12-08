@@ -5,9 +5,15 @@
 
 <mapper namespace="com.ssafy.yamyam_coach.mapper.meal.MealMapper">
 
-    <insert id="insert" parameterType="Meal" useGeneratedKeys="true">
+    <insert id="insert" parameterType="Meal" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO meals(daily_diet_id, type)
         VALUES (#{dailyDietId}, #{type})
     </insert>
+
+    <select id="findByDailyDietId" resultType="Meal">
+        SELECT *
+        FROM meals
+        WHERE daily_diet_id = #{dailyDietId}
+    </select>
 
 </mapper>

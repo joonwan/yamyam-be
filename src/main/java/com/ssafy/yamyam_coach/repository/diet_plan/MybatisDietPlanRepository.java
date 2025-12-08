@@ -28,4 +28,9 @@ public class MybatisDietPlanRepository implements DietPlanRepository {
     public List<DietPlan> findDietPlansByUserId(Long userId) {
         return dietPlanMapper.findDietPlansByUserId(userId);
     }
+
+    @Override
+    public boolean existsById(Long dietPlanId) {
+        return dietPlanMapper.existsById(dietPlanId);
+    }
 }

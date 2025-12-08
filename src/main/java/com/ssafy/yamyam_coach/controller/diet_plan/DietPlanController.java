@@ -5,6 +5,7 @@ import com.ssafy.yamyam_coach.controller.diet_plan.request.CreateDietPlanRequest
 import com.ssafy.yamyam_coach.service.daily_diet.DailyDietService;
 import com.ssafy.yamyam_coach.service.daily_diet.request.CreateDailyDietServiceRequest;
 import com.ssafy.yamyam_coach.service.diet_plan.DietPlanService;
+import com.ssafy.yamyam_coach.service.daily_diet.response.DailyDietDetailServiceResponse;
 import com.ssafy.yamyam_coach.service.diet_plan.response.DietPlanServiceResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -62,5 +64,11 @@ public class DietPlanController {
         dailyDietService.registerDailyDiet(serviceRequest);
 
         return ResponseEntity.status(201).build();
+    }
+
+    @GetMapping("/{dietPlanId}/daily-diets")
+    public ResponseEntity<DailyDietDetailServiceResponse> getDailyDietByIdAndDate(@PathVariable Long dietPlanId, @RequestParam LocalDate date) {
+        log.debug("[DietPlanController.getDailyDietByIdAndDate]: {}일 식단 조회 요청. diet plan id = {}", date, dietPlanId);
+        return ResponseEntity.ok(dailyDietService.findByDietPlanIdAndDate(dietPlanId, date));
     }
 }

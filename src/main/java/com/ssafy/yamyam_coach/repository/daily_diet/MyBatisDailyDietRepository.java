@@ -2,10 +2,12 @@ package com.ssafy.yamyam_coach.repository.daily_diet;
 
 import com.ssafy.yamyam_coach.domain.daily_diet.DailyDiet;
 import com.ssafy.yamyam_coach.mapper.daily_diet.DailyDietMapper;
+import com.ssafy.yamyam_coach.repository.daily_diet.response.DailyDietDetail;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -22,4 +24,10 @@ public class MyBatisDailyDietRepository implements DailyDietRepository {
     public boolean existsByDietPlanIdAndDate(Long dietPlanId, LocalDate date) {
         return dailyDietMapper.existsByDietPlanIdAndDate(dietPlanId, date);
     }
+
+    @Override
+    public Optional<DailyDietDetail> findDetailByDietPlanIdAndDate(Long dietPlanId, LocalDate date) {
+        return Optional.ofNullable(dailyDietMapper.findDetailByDietPlanIdAndDate(dietPlanId, date));
+    }
+
 }

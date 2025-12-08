@@ -1,10 +1,8 @@
 package com.ssafy.yamyam_coach.service.diet_plan;
 
 import com.ssafy.exception.diet_plan.DietPlanException;
-import com.ssafy.exception.diet_plan.ErrorCode;
 import com.ssafy.yamyam_coach.domain.dietplan.DietPlan;
 import com.ssafy.yamyam_coach.repository.diet_plan.DietPlanRepository;
-import com.ssafy.yamyam_coach.service.daily_diet.DailyDietService;
 import com.ssafy.yamyam_coach.service.diet_plan.request.CreateDietPlanServiceRequest;
 import com.ssafy.yamyam_coach.service.diet_plan.response.DietPlanServiceResponse;
 import lombok.RequiredArgsConstructor;
@@ -77,4 +75,5 @@ public class DietPlanService {
                 .endDate(dietPlan.getEndDate())
                 .build();
     }
+
 }

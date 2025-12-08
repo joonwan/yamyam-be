@@ -37,6 +37,7 @@ public class CreateDailyDietRequest {
     public CreateDailyDietServiceRequest toServiceRequest() {
         return CreateDailyDietServiceRequest.builder()
                 .date(date)
+                .description(description)
                 .breakfast(breakfast.stream().map(CreateMealFoodRequest::toServiceRequest).toList())
                 .lunch(lunch.stream().map(CreateMealFoodRequest::toServiceRequest).toList())
                 .dinner(dinner.stream().map(CreateMealFoodRequest::toServiceRequest).toList())

@@ -5,12 +5,12 @@
 
 <mapper namespace="com.ssafy.yamyam_coach.mapper.mealfood.MealFoodMapper">
 
-    <insert id="insert" useGeneratedKeys="true">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO meal_foods (meal_id, food_id, quantity)
         VALUES (#{mealId}, #{foodId}, #{quantity})
     </insert>
 
-    <insert id="batchInsert" useGeneratedKeys="true">
+    <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO meal_foods (meal_id, food_id, quantity)
         VALUES
         <foreach collection="mealFoods" item="mealFood" separator=",">

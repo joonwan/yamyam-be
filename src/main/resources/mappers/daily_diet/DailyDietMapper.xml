@@ -5,15 +5,95 @@
 
 <mapper namespace="com.ssafy.yamyam_coach.mapper.daily_diet.DailyDietMapper">
 
-    <insert id="insert" parameterType="DailyDiet" useGeneratedKeys="true">
+    <!-- ResultMap 정의 -->
+    <resultMap id="dailyDietDetailMap" type="com.ssafy.yamyam_coach.repository.daily_diet.response.DailyDietDetail">
+        <id property="id" column="dd_id"/>
+        <result property="dietPlanId" column="dd_diet_plan_id"/>
+        <result property="date" column="dd_date"/>
+        <result property="description" column="dd_description"/>
+
+        <!-- Meal 컬렉션 -->
+        <collection property="meals" ofType="com.ssafy.yamyam_coach.repository.daily_diet.response.MealDetail">
+            <id property="id" column="m_id"/>
+            <result property="type" column="m_type"/>
+
+            <!-- MealFood 컬렉션 -->
+            <collection property="mealFoods" ofType="com.ssafy.yamyam_coach.repository.daily_diet.response.MealFoodDetail">
+                <id property="id" column="mf_id"/>
+                <result property="quantity" column="mf_quantity"/>
+
+                <!-- Food 객체 -->
+                <association property="food" javaType="com.ssafy.yamyam_coach.domain.food.Food">
+                    <id property="id" column="f_id"/>
+                    <result property="name" column="f_name"/>
+                    <result property="category" column="f_category"/>
+                    <result property="baseUnit" column="f_base_unit"/>
+                    <result property="energyPer100" column="f_energy_per_100"/>
+                    <result property="proteinPer100" column="f_protein_per_100"/>
+                    <result property="fatPer100" column="f_fat_per_100"/>
+                    <result property="carbohydratePer100" column="f_carbohydrate_per_100"/>
+                    <result property="sugarPer100" column="f_sugar_per_100"/>
+                    <result property="sodiumPer100" column="f_sodium_per_100"/>
+                    <result property="cholesterolPer100" column="f_cholesterol_per_100"/>
+                    <result property="saturatedFatPer100" column="f_saturated_fat_per_100"/>
+                    <result property="transFatPer100" column="f_trans_fat_per_100"/>
+                </association>
+            </collection>
+        </collection>
+    </resultMap>
+
+
+    <insert id="insert" parameterType="DailyDiet" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO daily_diets(diet_plan_id, date, description)
         VALUES (#{dietPlanId}, #{date}, #{description})
     </insert>
 
     <select id="existsByDietPlanIdAndDate" resultType="boolean">
-        SELECT 1
+        SELECT COUNT(*) > 0
         FROM daily_diets
-        WHERE diet_plan_id = #{dietPlanId} and date = #{date}
+        WHERE diet_plan_id = #{dietPlanId}
+          AND date = #{date}
+    </select>
+
+    <select id="findByDietPlanIdAndDate" resultType="DailyDiet">
+        SELECT *
+        FROM daily_diets
+        WHERE diet_plan_id = #{dietPlanId}
+          and date = #{date}
+    </select>
+
+    <select id="findDetailByDietPlanIdAndDate" resultMap="dailyDietDetailMap">
+        SELECT dd.id                   as dd_id,
+               dd.diet_plan_id         as dd_diet_plan_id,
+               dd.date                 as dd_date,
+               dd.description          as dd_description,
+
+               m.id                    as m_id,
+               m.type                  as m_type,
+
+               mf.id                   as mf_id,
+               mf.quantity             as mf_quantity,
+
+               f.id                    as f_id,
+               f.name                  as f_name,
+               f.category              as f_category,
+               f.base_unit             as f_base_unit,
+               f.energy_per_100        as f_energy_per_100,
+               f.protein_per_100       as f_protein_per_100,
+               f.fat_per_100           as f_fat_per_100,
+               f.carbohydrate_per_100  as f_carbohydrate_per_100,
+               f.sugar_per_100         as f_sugar_per_100,
+               f.sodium_per_100        as f_sodium_per_100,
+               f.cholesterol_per_100   as f_cholesterol_per_100,
+               f.saturated_fat_per_100 as f_saturated_fat_per_100,
+               f.trans_fat_per_100     as f_trans_fat_per_100
+        FROM daily_diets dd
+                 LEFT JOIN meals m ON dd.id = m.daily_diet_id
+                 LEFT JOIN meal_foods mf ON m.id = mf.meal_id
+                 LEFT JOIN foods f ON mf.food_id = f.id
+        WHERE dd.diet_plan_id = #{dietPlanId}
+          AND dd.date = #{date}
+        ORDER BY m.id, mf.id
     </select>
 
 </mapper>

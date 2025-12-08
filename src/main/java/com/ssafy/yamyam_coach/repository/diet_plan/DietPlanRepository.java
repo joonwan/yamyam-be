@@ -12,4 +12,6 @@ public interface DietPlanRepository {
     Optional<DietPlan> findById(Long dietPlanId);
 
     List<DietPlan> findDietPlansByUserId(Long userId);
+
+    boolean existsById(Long dietPlanId);
 }
