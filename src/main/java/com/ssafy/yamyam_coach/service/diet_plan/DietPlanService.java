@@ -28,7 +28,7 @@ public class DietPlanService {
         boolean isPrimary = isDietPlanEmpty(getUserIdFromJwtToken());
 
         DietPlan createdDietPlan = createDietPlan(request, getUserIdFromJwtToken(), isPrimary);
-        dietPlanRepository.save(createdDietPlan);
+        dietPlanRepository.insert(createdDietPlan);
 
         return createdDietPlan.getId();
     }
@@ -120,8 +120,8 @@ public class DietPlanService {
     }
 
     private void updatePrimaryDietPlan(Long userId, Long newId) {
-        dietPlanRepository.deActiveCurrentPrimaryDietPlan(userId);
-        int updatedRows = dietPlanRepository.activeCurrentPrimaryDietPlan(userId, newId);
+        dietPlanRepository.deActivateCurrentPrimaryDietPlan(userId);
+        int updatedRows = dietPlanRepository.activateCurrentPrimaryDietPlan(userId, newId);
 
         if (updatedRows == 0) {
             throw new DietPlanException(NOT_FOUND_DIET_PLAN);

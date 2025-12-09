@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface DietPlanRepository {
 
-    int save(DietPlan dietPlan);
+    int insert(DietPlan dietPlan);
 
     Optional<DietPlan> findById(Long dietPlanId);
 
@@ -19,7 +19,7 @@ public interface DietPlanRepository {
 
     Optional<DietPlan> findUsersPrimaryDietPlan(Long userId);
 
-    int deActiveCurrentPrimaryDietPlan(Long userId);
+    int deActivateCurrentPrimaryDietPlan(Long userId);
 
-    int activeCurrentPrimaryDietPlan(Long userId, Long dietPlanId);
+    int activateCurrentPrimaryDietPlan(Long userId, Long dietPlanId);
 }
