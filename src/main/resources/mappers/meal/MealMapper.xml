@@ -10,10 +10,10 @@
         VALUES (#{dailyDietId}, #{type})
     </insert>
 
-    <select id="findByDailyDietId" resultType="Meal">
+    <select id="findById" resultType="Meal">
         SELECT *
         FROM meals
-        WHERE daily_diet_id = #{dailyDietId}
+        WHERE id = #{meaId}
     </select>
 
     <delete id="deleteByDailyDietId">

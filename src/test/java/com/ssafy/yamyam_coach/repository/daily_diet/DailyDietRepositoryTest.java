@@ -19,7 +19,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 import static com.ssafy.yamyam_coach.repository.TestFixtures.*;
 import static org.assertj.core.api.Assertions.assertThat;

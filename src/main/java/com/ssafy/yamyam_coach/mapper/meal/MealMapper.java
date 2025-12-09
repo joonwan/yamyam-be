@@ -10,7 +10,7 @@ public interface MealMapper {
 
     int insert(Meal meal);
 
-    List<Meal> findByDailyDietId(Long dailyDietId);
-
     int deleteByDailyDietId(Long dailyDietId);
+
+    Meal findById(Long mealId);
 }
