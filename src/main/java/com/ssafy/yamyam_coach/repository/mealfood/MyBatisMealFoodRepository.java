@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -17,6 +18,11 @@ public class MyBatisMealFoodRepository implements MealFoodRepository {
     @Override
     public int insert(MealFood mealFood) {
         return mealFoodMapper.insert(mealFood);
+    }
+
+    @Override
+    public Optional<MealFood> findById(Long mealFoodId) {
+        return Optional.ofNullable(mealFoodMapper.findById(mealFoodId));
     }
 
     @Override

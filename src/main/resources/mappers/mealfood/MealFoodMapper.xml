@@ -22,4 +22,10 @@
         </foreach>
     </insert>
 
+    <select id="findById" resultType="MealFood">
+        SELECT *
+        FROM meal_foods
+        WHERE id = #{mealFoodId}
+    </select>
+
 </mapper>

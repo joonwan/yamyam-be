@@ -6,8 +6,10 @@
 <mapper namespace="com.ssafy.yamyam_coach.mapper.diet_plan.DietPlanMapper">
 
     <insert id="insert" parameterType="DietPlan" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO diet_plans(user_id, title, content, is_shared, start_date, end_date, created_at, updated_at)
-            VALUES (#{userId}, #{title}, #{content}, #{isShared}, #{startDate}, #{endDate}, #{createdAt}, #{updatedAt})
+        INSERT INTO diet_plans(user_id, title, content, is_shared, is_primary, start_date, end_date, created_at,
+                               updated_at)
+        VALUES (#{userId}, #{title}, #{content}, #{isShared}, #{isPrimary}, #{startDate}, #{endDate}, #{createdAt},
+                #{updatedAt})
     </insert>
 
     <select id="findDietPlansByUserId" resultType="DietPlan">
@@ -29,9 +31,30 @@
         WHERE id = #{dietPlanId}
     </select>
 
+    <select id="findUsersPrimaryDietPlan" resultType="DietPlan">
+        SELECT *
+        FROM diet_plans
+        WHERE user_id = #{userId}
+          and is_primary = 1;
+    </select>
+
     <delete id="deleteById">
-        DELETE FROM diet_plans
+        DELETE
+        FROM diet_plans
         WHERE id = #{dietPlanId}
     </delete>
 
+    <update id="deActivateCurrentPrimaryDietPlan">
+        UPDATE diet_plans
+        SET is_primary = FALSE
+        WHERE user_id = #{userId}
+          AND is_primary = TRUE;
+    </update>
+
+    <update id="activateCurrentPrimaryDietPlan">
+        UPDATE diet_plans
+        SET is_primary = TRUE
+        WHERE user_id = #{userId}
+          AND id = #{dietPlanId}
+    </update>
 </mapper>

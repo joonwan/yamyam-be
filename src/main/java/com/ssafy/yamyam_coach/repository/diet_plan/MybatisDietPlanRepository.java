@@ -15,7 +15,7 @@ public class MybatisDietPlanRepository implements DietPlanRepository {
     private final DietPlanMapper dietPlanMapper;
 
     @Override
-    public int save(DietPlan dietPlan) {
+    public int insert(DietPlan dietPlan) {
         return dietPlanMapper.insert(dietPlan);
     }
 
@@ -38,4 +38,20 @@ public class MybatisDietPlanRepository implements DietPlanRepository {
     public int deleteById(Long dietPlanId) {
         return dietPlanMapper.deleteById(dietPlanId);
     }
+
+    @Override
+    public Optional<DietPlan> findUsersPrimaryDietPlan(Long userId) {
+        return Optional.ofNullable(dietPlanMapper.findUsersPrimaryDietPlan(userId));
+    }
+
+    @Override
+    public int deActivateCurrentPrimaryDietPlan(Long userId) {
+        return dietPlanMapper.deActivateCurrentPrimaryDietPlan(userId);
+    }
+
+    @Override
+    public int activateCurrentPrimaryDietPlan(Long userId, Long dietPlanId) {
+        return dietPlanMapper.activateCurrentPrimaryDietPlan(userId, dietPlanId);
+    }
+
 }

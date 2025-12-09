@@ -12,6 +12,8 @@ public interface DailyDietMapper {
 
     int insert(DailyDiet dailyDiet);
 
+    DailyDiet findById(Long dailyDietId);
+
     boolean existsByDietPlanIdAndDate(Long dietPlanId, LocalDate date);
 
     DailyDiet findByDietPlanIdAndDate(Long dietPlanId, LocalDate date);
@@ -19,4 +21,5 @@ public interface DailyDietMapper {
     DailyDietDetail findDetailByDietPlanIdAndDate(Long dietPlanId, LocalDate date);
 
     int updateDescription(@Param("dailyDietId") Long dailyDietId, @Param("description") String description);
+
 }

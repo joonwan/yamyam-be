@@ -2,6 +2,7 @@ package com.ssafy.yamyam_coach.mapper.user;
 
 import com.ssafy.yamyam_coach.domain.user.User;
 import org.apache.ibatis.annotations.Mapper;
+
 import java.util.Optional;
 
 @Mapper
@@ -11,7 +12,7 @@ public interface UserMapper {
 
     // 이메일로 조회
     Optional<User> findByEmail(String email);
-    
+
     // 닉네임 중복 체크
     boolean existsByNickname(String nickname);
 }

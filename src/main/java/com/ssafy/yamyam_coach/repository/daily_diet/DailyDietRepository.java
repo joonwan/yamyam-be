@@ -10,6 +10,8 @@ public interface DailyDietRepository {
 
     int insert(DailyDiet  dailyDiet);
 
+    Optional<DailyDiet> findById(Long dailyDietId);
+
     boolean existsByDietPlanIdAndDate(Long dietPlanId, LocalDate date);
 
     Optional<DailyDiet> findByDietPlanIdAndDate(Long dietPlanId, LocalDate date);

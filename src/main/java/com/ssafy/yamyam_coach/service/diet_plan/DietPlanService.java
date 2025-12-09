@@ -25,8 +25,10 @@ public class DietPlanService {
 
     @Transactional
     public Long registerDietPlan(CreateDietPlanServiceRequest request) {
-        DietPlan createdDietPlan = createDietPlan(request, getUserIdFromJwtToken());
-        dietPlanRepository.save(createdDietPlan);
+        boolean isPrimary = isDietPlanEmpty(getUserIdFromJwtToken());
+
+        DietPlan createdDietPlan = createDietPlan(request, getUserIdFromJwtToken(), isPrimary);
+        dietPlanRepository.insert(createdDietPlan);
 
         return createdDietPlan.getId();
     }
@@ -47,6 +49,16 @@ public class DietPlanService {
         dietPlanRepository.deleteById(dietPlanId);
     }
 
+    @Transactional
+    public void changePrimaryDietPlanTo(Long targetId) {
+
+        // 1. 사용자 pk jwt token 에서 추출
+        Long userId = getUserIdFromJwtToken();
+
+        // 2. 대표 식단 변경
+        updatePrimaryDietPlan(userId, targetId);
+    }
+
     public List<DietPlanServiceResponse> getMyDietPlans() {
         Long userId = getUserIdFromJwtToken();
 
@@ -63,6 +75,14 @@ public class DietPlanService {
         return toDietPlanResponse(findDietPlan);
     }
 
+    public DietPlanServiceResponse getPrimaryDietPlan() {
+        Long userId = getUserIdFromJwtToken();
+        DietPlan primaryDietPlan = dietPlanRepository.findUsersPrimaryDietPlan(userId)
+                .orElseThrow(() -> new DietPlanException(NOT_FOUND_DIET_PLAN));
+
+        return toDietPlanResponse(primaryDietPlan);
+    }
+
     private Long getUserIdFromJwtToken() {
         /**
          * todo jwt token 에서 userId 들고오는 로직 작성 해야함
@@ -70,12 +90,13 @@ public class DietPlanService {
         return 1L;
     }
 
-    private DietPlan createDietPlan(CreateDietPlanServiceRequest request, Long userId) {
+    private DietPlan createDietPlan(CreateDietPlanServiceRequest request, Long userId, boolean isPrimary) {
         return DietPlan.builder()
                 .userId(userId)
                 .title(request.getTitle())
                 .content(request.getContent())
                 .isShared(false)
+                .isPrimary(isPrimary)
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
                 .createdAt(LocalDateTime.now())
@@ -87,9 +108,23 @@ public class DietPlanService {
         return DietPlanServiceResponse.builder()
                 .dietPlanId(dietPlan.getId())
                 .title(dietPlan.getTitle())
+                .content(dietPlan.getContent())
+                .isPrimary(dietPlan.isPrimary())
                 .startDate(dietPlan.getStartDate())
                 .endDate(dietPlan.getEndDate())
                 .build();
     }
 
+    private boolean isDietPlanEmpty(Long userId) {
+        return dietPlanRepository.findDietPlansByUserId(userId).isEmpty();
+    }
+
+    private void updatePrimaryDietPlan(Long userId, Long newId) {
+        dietPlanRepository.deActivateCurrentPrimaryDietPlan(userId);
+        int updatedRows = dietPlanRepository.activateCurrentPrimaryDietPlan(userId, newId);
+
+        if (updatedRows == 0) {
+            throw new DietPlanException(NOT_FOUND_DIET_PLAN);
+        }
+    }
 }

@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -19,8 +20,8 @@ public class MyBatisMealRepository implements MealRepository {
     }
 
     @Override
-    public List<Meal> findByDailyDietId(Long dailyDietId) {
-        return mealMapper.findByDailyDietId(dailyDietId);
+    public Optional<Meal> findById(Long mealId) {
+        return Optional.ofNullable(mealMapper.findById(mealId));
     }
 
     @Override

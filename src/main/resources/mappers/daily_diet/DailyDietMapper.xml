@@ -49,6 +49,12 @@
         VALUES (#{dietPlanId}, #{date}, #{description})
     </insert>
 
+    <select id="findById" resultType="DailyDiet">
+        SELECT *
+        FROM daily_diets
+        WHERE id = #{dailyDietId}
+    </select>
+
     <select id="existsByDietPlanIdAndDate" resultType="boolean">
         SELECT COUNT(*) > 0
         FROM daily_diets

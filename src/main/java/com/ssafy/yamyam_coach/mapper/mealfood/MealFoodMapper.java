@@ -12,4 +12,6 @@ public interface MealFoodMapper {
     int insert(MealFood mealFood);
 
     int batchInsert(@Param("mealFoods") List<MealFood> mealFoods);
+
+    MealFood findById(Long mealFoodId);
 }

@@ -21,6 +21,11 @@ public class MyBatisDailyDietRepository implements DailyDietRepository {
     }
 
     @Override
+    public Optional<DailyDiet> findById(Long dailyDietId) {
+        return Optional.ofNullable(dailyDietMapper.findById(dailyDietId));
+    }
+
+    @Override
     public boolean existsByDietPlanIdAndDate(Long dietPlanId, LocalDate date) {
         return dailyDietMapper.existsByDietPlanIdAndDate(dietPlanId, date);
     }
