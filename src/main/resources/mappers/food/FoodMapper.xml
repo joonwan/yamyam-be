@@ -5,21 +5,53 @@
 
 <mapper namespace="com.ssafy.yamyam_coach.mapper.food.FoodMapper">
 
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO foods (name,
+                           category,
+                           base_unit,
+                           energy_per_100,
+                           protein_per_100,
+                           fat_per_100,
+                           carbohydrate_per_100,
+                           sugar_per_100,
+                           sodium_per_100,
+                           cholesterol_per_100,
+                           saturated_fat_per_100,
+                           trans_fat_per_100)
+        VALUES ( #{name}
+               , #{category}
+               , #{baseUnit}
+               , #{energyPer100}
+               , #{proteinPer100}
+               , #{fatPer100}
+               , #{carbohydratePer100}
+               , #{sugarPer100}
+               , #{sodiumPer100}
+               , #{cholesterolPer100}
+               , #{saturatedFatPer100}
+               , #{transFatPer100})
+    </insert>
+
+    <select id="findById" resultType="Food">
+        SELECT *
+        FROM foods
+        WHERE id = #{foodId}
+    </select>
+
     <select id="findByNameLike" resultType="Food">
-        SELECT
-            id,
-            name,
-            category,
-            base_unit ,
-            energy_per_100 ,
-            protein_per_100 ,
-            fat_per_100 ,
-            carbohydrate_per_100 ,
-            sugar_per_100 ,
-            sodium_per_100 ,
-            cholesterol_per_100 ,
-            saturated_fat_per_100 ,
-            trans_fat_per_100
+        SELECT id,
+               name,
+               category,
+               base_unit,
+               energy_per_100,
+               protein_per_100,
+               fat_per_100,
+               carbohydrate_per_100,
+               sugar_per_100,
+               sodium_per_100,
+               cholesterol_per_100,
+               saturated_fat_per_100,
+               trans_fat_per_100
         FROM foods
         WHERE name like concat('%', #{name}, '%')
         ORDER BY name
