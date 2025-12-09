@@ -37,7 +37,7 @@ out/
 .vscode/
 
 application.yaml
+application-test.yaml
+application-dev.yaml
 compose.yaml
-ddl.sql
 mysql_data
-dump.sql
