@@ -104,6 +104,11 @@ public abstract class TestFixtures {
                 165.0, 31.0, 3.6, 0.0, 0.0, 63.0, 85.0, 1.0, 0.0);
     }
 
+    public static Food createDummyFoodByName(String name) {
+        return createFood(name, "육류", BaseUnit.g,
+                165.0, 31.0, 3.6, 0.0, 0.0, 63.0, 85.0, 1.0, 0.0);
+    }
+
     public static List<Food> createDummyFoods10() {
         return List.of(
                 // 1. 닭가슴살 (육류) - "닭" 검색용

@@ -242,4 +242,24 @@ class DailyDietRepositoryTest extends IntegrationTestSupport {
         assertThat(findDailyDiet.getDate()).isEqualTo(after);
     }
 
+    @DisplayName("id 기반으로 일일 식단을 삭제할 수 있다.")
+    @Test
+    void deleteById() {
+        // given
+        User user = createDummyUser();
+        userRepository.save(user);
+
+        DietPlan dietPlan = createDummyDietPlan(user.getId(), LocalDate.now(), LocalDate.now().plusDays(1));
+        dietPlanRepository.insert(dietPlan);
+
+        DailyDiet dailyDiet = createDailyDiet(dietPlan.getId(), LocalDate.now(), "description1");
+        dailyDietRepository.insert(dailyDiet);
+
+        //when
+        dailyDietRepository.deleteById(dailyDiet.getId());
+        DailyDiet findDailyDiet = dailyDietRepository.findById(dailyDiet.getId()).orElse(null);
+
+        //then
+        assertThat(findDailyDiet).isNull();
+    }
 }

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MealFoodDetail {
-    private Long id;
-    private Double quantity;
-    private Food food;
+    private Long id;                // meal food id
+    private Double quantity;        // 양
+    private Food food;              // 음식 세부 정보
 }

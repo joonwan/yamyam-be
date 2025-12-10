@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MealDetail {
-    private Long id;
-    private MealType type;
-    private List<MealFoodDetail> mealFoods;
+    private Long id;                                // mea id
+    private MealType type;                          // 아침, 점심, 저녁, 간식 타입
+    private List<MealFoodDetail> mealFoods;         // MealFood 교차테이블 상세 정보들
 }
