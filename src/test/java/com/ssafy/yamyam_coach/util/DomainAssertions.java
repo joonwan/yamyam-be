@@ -9,7 +9,7 @@ import com.ssafy.yamyam_coach.domain.user.User;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class DomainAssertions {
+public abstract class DomainAssertions {
 
     // DietPlan Assertions
     public static void assertDietPlanEquals(DietPlan actual, DietPlan expected) {
