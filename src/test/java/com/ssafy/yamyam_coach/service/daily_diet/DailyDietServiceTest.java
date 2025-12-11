@@ -1,7 +1,7 @@
 package com.ssafy.yamyam_coach.service.daily_diet;
 
-import com.ssafy.exception.daily_diet.DailyDietException;
-import com.ssafy.exception.diet_plan.DietPlanException;
+import com.ssafy.yamyam_coach.exception.daily_diet.DailyDietException;
+import com.ssafy.yamyam_coach.exception.diet_plan.DietPlanException;
 import com.ssafy.yamyam_coach.IntegrationTestSupport;
 import com.ssafy.yamyam_coach.domain.daily_diet.DailyDiet;
 import com.ssafy.yamyam_coach.domain.dietplan.DietPlan;

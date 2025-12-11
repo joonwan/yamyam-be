@@ -8,6 +8,7 @@ import com.ssafy.yamyam_coach.domain.mealfood.MealFood;
 import com.ssafy.yamyam_coach.domain.meals.Meal;
 import com.ssafy.yamyam_coach.domain.meals.MealType;
 import com.ssafy.yamyam_coach.domain.user.User;
+import com.ssafy.yamyam_coach.repository.daily_diet.request.DailyDietUpdateRequest;
 import com.ssafy.yamyam_coach.repository.daily_diet.response.DailyDietDetail;
 import com.ssafy.yamyam_coach.repository.diet_plan.DietPlanRepository;
 import com.ssafy.yamyam_coach.repository.food.FoodRepository;
@@ -15,6 +16,7 @@ import com.ssafy.yamyam_coach.repository.meal.MealRepository;
 import com.ssafy.yamyam_coach.repository.mealfood.MealFoodRepository;
 import com.ssafy.yamyam_coach.repository.user.UserRepository;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -163,28 +165,6 @@ class DailyDietRepositoryTest extends IntegrationTestSupport {
         assertThat(detail.getMeals()).hasSize(2);
     }
 
-    @DisplayName("일일 식단의 설명을 수정할 수 있다.")
-    @Test
-    void updateDescription() {
-        //given
-        User user = createDummyUser();
-        userRepository.save(user);
-
-        DietPlan dietPlan = createDummyDietPlan(user.getId(), LocalDate.now(), LocalDate.now().plusDays(1));
-        dietPlanRepository.insert(dietPlan);
-
-        DailyDiet dailyDiet = createDailyDiet(dietPlan.getId(), LocalDate.now(), "description");
-        dailyDietRepository.insert(dailyDiet);
-
-        //when
-        String nextDescription = "description2";
-        dailyDietRepository.updateDescription(dailyDiet.getId(), nextDescription);
-        DailyDiet updatedDailyDiet = dailyDietRepository.findById(dailyDiet.getId()).orElse(null);
-        //then
-        assertThat(updatedDailyDiet).isNotNull();
-        assertThat(updatedDailyDiet.getDescription()).isEqualTo(nextDescription);
-    }
-
     @DisplayName("diet plan id 로 날짜순으로 정렬된 daily diet 들을 조회할 수 있다.")
     @Test
     void findByDietPlanId() {
@@ -215,33 +195,6 @@ class DailyDietRepositoryTest extends IntegrationTestSupport {
 
     }
 
-    @DisplayName("daily diet 의 날짜를 업데이트 할 수 있다.")
-    @Test
-    void updateDate() {
-
-        // given
-
-        LocalDate before = LocalDate.now();
-        LocalDate after = LocalDate.now().plusDays(1);
-
-        User user = createDummyUser();
-        userRepository.save(user);
-
-        DietPlan dietPlan = createDummyDietPlan(user.getId(), before, after);
-        dietPlanRepository.insert(dietPlan);
-
-        DailyDiet dailyDiet = createDailyDiet(dietPlan.getId(), after,"description1");
-        dailyDietRepository.insert(dailyDiet);
-
-        // when
-        dailyDietRepository.updateDate(dailyDiet.getId(), after);
-        DailyDiet findDailyDiet = dailyDietRepository.findById(dailyDiet.getId()).orElse(null);
-
-        //then
-        assertThat(findDailyDiet).isNotNull();
-        assertThat(findDailyDiet.getDate()).isEqualTo(after);
-    }
-
     @DisplayName("id 기반으로 일일 식단을 삭제할 수 있다.")
     @Test
     void deleteById() {
@@ -261,5 +214,114 @@ class DailyDietRepositoryTest extends IntegrationTestSupport {
 
         //then
         assertThat(findDailyDiet).isNull();
+    }
+
+    @Nested
+    @DisplayName("updateDailyDiet")
+    class UpdateDailyDiet {
+
+        @Nested
+        @DisplayName("성공 케이스")
+        class SuccessCase {
+
+            @DisplayName("description 이 null 이고 date 가 새로운 값이 들어왔을 경우 date 만 update 된다.")
+            @Test
+            void updateDate() {
+                // given
+                User user = createDummyUser();
+                userRepository.save(user);
+
+                DietPlan dietPlan = createDummyDietPlan(user.getId(), LocalDate.now(), LocalDate.now().plusDays(1));
+                dietPlanRepository.insert(dietPlan);
+
+                LocalDate createdDate = LocalDate.of(2025, 12, 12);
+                LocalDate updatedDate = LocalDate.of(2025, 12, 13);
+
+                DailyDiet dailyDiet = createDailyDiet(dietPlan.getId(), createdDate, "description1");
+                dailyDietRepository.insert(dailyDiet);
+
+                DailyDietUpdateRequest request = DailyDietUpdateRequest.builder()
+                        .description(null)
+                        .date(updatedDate)
+                        .dailyDietId(dailyDiet.getId())
+                        .build();
+                // when
+                dailyDietRepository.updateDailyDiet(request);
+                DailyDiet findDailyDiet = dailyDietRepository.findById(dailyDiet.getId()).orElse(null);
+
+                // then
+                assertThat(findDailyDiet).isNotNull();
+                assertThat(findDailyDiet.getDescription()).isEqualTo("description1");
+                assertThat(findDailyDiet.getDate()).isEqualTo(updatedDate);
+            }
+
+            @DisplayName("date 가 null 이고 description 이 새로운 값이 들어왔을 경우 description 만 update 된다.")
+            @Test
+            void updateDescription() {
+                // given
+                User user = createDummyUser();
+                userRepository.save(user);
+
+                DietPlan dietPlan = createDummyDietPlan(user.getId(), LocalDate.now(), LocalDate.now().plusDays(1));
+                dietPlanRepository.insert(dietPlan);
+
+                String oldDescription = "old description";
+                String  newDescription = "new description";
+
+                LocalDate createdDate = LocalDate.of(2025, 12, 12);
+                DailyDiet dailyDiet = createDailyDiet(dietPlan.getId(), createdDate, oldDescription);
+                dailyDietRepository.insert(dailyDiet);
+
+                DailyDietUpdateRequest request = DailyDietUpdateRequest.builder()
+                        .description(newDescription)
+                        .date(null)
+                        .dailyDietId(dailyDiet.getId())
+                        .build();
+
+                // when
+                dailyDietRepository.updateDailyDiet(request);
+                DailyDiet findDailyDiet = dailyDietRepository.findById(dailyDiet.getId()).orElse(null);
+
+                // then
+                assertThat(findDailyDiet).isNotNull();
+                assertThat(findDailyDiet.getDate()).isEqualTo(createdDate);
+                assertThat(findDailyDiet.getDescription()).isEqualTo(newDescription);
+            }
+
+            @DisplayName("description 과 date 둘다 null 이 아닐 경우 둘다 업데이트 된다.")
+            @Test
+            void updateDescriptionAndDate() {
+                // given
+                User user = createDummyUser();
+                userRepository.save(user);
+
+                DietPlan dietPlan = createDummyDietPlan(user.getId(), LocalDate.now(), LocalDate.now().plusDays(1));
+                dietPlanRepository.insert(dietPlan);
+
+                String oldDescription = "old description";
+                String  newDescription = "new description";
+
+                LocalDate createdDate = LocalDate.of(2025, 12, 12);
+                LocalDate updatedDate = LocalDate.of(2025, 12, 12);
+                DailyDiet dailyDiet = createDailyDiet(dietPlan.getId(), createdDate, oldDescription);
+                dailyDietRepository.insert(dailyDiet);
+
+                DailyDietUpdateRequest request = DailyDietUpdateRequest.builder()
+                        .description(newDescription)
+                        .date(updatedDate)
+                        .dailyDietId(dailyDiet.getId())
+                        .build();
+
+                // when
+                dailyDietRepository.updateDailyDiet(request);
+                DailyDiet findDailyDiet = dailyDietRepository.findById(dailyDiet.getId()).orElse(null);
+
+                // then
+                assertThat(findDailyDiet).isNotNull();
+                assertThat(findDailyDiet.getDate()).isEqualTo(updatedDate);
+                assertThat(findDailyDiet.getDescription()).isEqualTo(newDescription);
+
+            }
+        }
     }
 }

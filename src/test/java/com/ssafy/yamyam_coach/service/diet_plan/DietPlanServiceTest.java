@@ -1,6 +1,6 @@
 package com.ssafy.yamyam_coach.service.diet_plan;
 
-import com.ssafy.exception.diet_plan.DietPlanException;
+import com.ssafy.yamyam_coach.exception.diet_plan.DietPlanException;
 import com.ssafy.yamyam_coach.IntegrationTestSupport;
 import com.ssafy.yamyam_coach.domain.dietplan.DietPlan;
 import com.ssafy.yamyam_coach.domain.user.User;
