@@ -27,20 +27,12 @@ public class FoodService {
     }
 
     private SearchFoodServiceResponse toSearchFoodServiceResponse(Food food) {
-        SearchFoodServiceResponse response = SearchFoodServiceResponse.builder()
+        return SearchFoodServiceResponse.builder()
                 .foodId(food.getId())
                 .name(food.getName())
                 .category(food.getCategory())
+                .baseUnit(food.getBaseUnit())
+                .caloriePer100(food.getEnergyPer100())
                 .build();
-
-        if (food.getBaseUnit().name().equals("g")) {
-            response.setCaloriePerG(food.getEnergyPer100());
-        }
-
-        if (food.getBaseUnit().name().equals("ml")) {
-            response.setCaloriePerMl(food.getEnergyPer100());
-        }
-
-        return response;
     }
 }
