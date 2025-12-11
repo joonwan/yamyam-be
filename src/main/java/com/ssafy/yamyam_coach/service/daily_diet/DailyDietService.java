@@ -1,7 +1,7 @@
 package com.ssafy.yamyam_coach.service.daily_diet;
 
-import com.ssafy.exception.daily_diet.DailyDietException;
-import com.ssafy.exception.diet_plan.DietPlanException;
+import com.ssafy.yamyam_coach.exception.daily_diet.DailyDietException;
+import com.ssafy.yamyam_coach.exception.diet_plan.DietPlanException;
 import com.ssafy.yamyam_coach.domain.daily_diet.DailyDiet;
 import com.ssafy.yamyam_coach.domain.dietplan.DietPlan;
 import com.ssafy.yamyam_coach.domain.meals.MealType;
@@ -32,10 +32,9 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.ssafy.exception.daily_diet.ErrorCode.*;
-import static com.ssafy.exception.daily_diet.ErrorCode.UNAUTHORIZED;
-import static com.ssafy.exception.diet_plan.ErrorCode.*;
 import static com.ssafy.yamyam_coach.domain.meals.MealType.*;
+import static com.ssafy.yamyam_coach.exception.daily_diet.ErrorCode.*;
+import static com.ssafy.yamyam_coach.exception.diet_plan.ErrorCode.NOT_FOUND_DIET_PLAN;
 
 @Slf4j
 @Service

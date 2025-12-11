@@ -1,6 +1,6 @@
 package com.ssafy.yamyam_coach.service.diet_plan;
 
-import com.ssafy.exception.diet_plan.DietPlanException;
+import com.ssafy.yamyam_coach.exception.diet_plan.DietPlanException;
 import com.ssafy.yamyam_coach.domain.dietplan.DietPlan;
 import com.ssafy.yamyam_coach.repository.diet_plan.DietPlanRepository;
 import com.ssafy.yamyam_coach.service.diet_plan.request.CreateDietPlanServiceRequest;
@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.ssafy.exception.diet_plan.ErrorCode.*;
+import static com.ssafy.yamyam_coach.exception.diet_plan.ErrorCode.*;
 
 @Service
 @Slf4j

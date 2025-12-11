@@ -1,8 +1,9 @@
-package com.ssafy.yamyam_coach.controller.diet_plan.request;
+package com.ssafy.yamyam_coach.controller.daily_diet.request;
 
 import com.ssafy.yamyam_coach.service.daily_diet.request.RegisterDailyDietServiceRequest;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -25,5 +26,12 @@ public class RegisterDailyDietRequest {
                 .date(date)
                 .description(description)
                 .build();
+    }
+
+    @Builder
+    private RegisterDailyDietRequest(Long dietPlanId, LocalDate date, String description) {
+        this.dietPlanId = dietPlanId;
+        this.date = date;
+        this.description = description;
     }
 }

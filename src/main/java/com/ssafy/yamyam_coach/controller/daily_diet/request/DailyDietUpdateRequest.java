@@ -5,7 +5,7 @@ import lombok.Data;
 import java.time.LocalDate;
 
 @Data
-public class DailyDietUpdateDescriptionRequest {
+public class DailyDietUpdateRequest{
 
     private String newDescription;
     private LocalDate newDate;
