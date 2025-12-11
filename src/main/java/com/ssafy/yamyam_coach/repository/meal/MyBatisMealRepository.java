@@ -1,6 +1,7 @@
 package com.ssafy.yamyam_coach.repository.meal;
 
 import com.ssafy.yamyam_coach.domain.meals.Meal;
+import com.ssafy.yamyam_coach.domain.meals.MealType;
 import com.ssafy.yamyam_coach.mapper.meal.MealMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -27,5 +28,10 @@ public class MyBatisMealRepository implements MealRepository {
     @Override
     public int deleteByDailyDietId(Long dailyDietId) {
         return mealMapper.deleteByDailyDietId(dailyDietId);
+    }
+
+    @Override
+    public boolean existsByDailyDietAndMealType(Long dailyDietId, MealType mealType) {
+        return mealMapper.existsByDailyDietAndMealType(dailyDietId, mealType);
     }
 }

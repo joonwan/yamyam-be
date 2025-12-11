@@ -1,7 +1,9 @@
 package com.ssafy.yamyam_coach.mapper.meal;
 
 import com.ssafy.yamyam_coach.domain.meals.Meal;
+import com.ssafy.yamyam_coach.domain.meals.MealType;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -13,4 +15,6 @@ public interface MealMapper {
     int deleteByDailyDietId(Long dailyDietId);
 
     Meal findById(Long mealId);
+
+    boolean existsByDailyDietAndMealType(@Param("dailyDietId") Long dailyDietId, @Param("mealType") MealType mealType);
 }

@@ -21,4 +21,10 @@
         WHERE daily_diet_id = #{dailyDietId}
     </delete>
 
+    <select id="existsByDailyDietAndMealType" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM meals
+        WHERE daily_diet_id = #{dailyDietId} and type = #{mealType}
+    </select>
+
 </mapper>
