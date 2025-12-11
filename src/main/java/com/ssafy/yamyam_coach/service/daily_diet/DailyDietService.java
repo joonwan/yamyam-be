@@ -6,13 +6,13 @@ import com.ssafy.yamyam_coach.domain.daily_diet.DailyDiet;
 import com.ssafy.yamyam_coach.domain.dietplan.DietPlan;
 import com.ssafy.yamyam_coach.domain.meals.MealType;
 import com.ssafy.yamyam_coach.repository.daily_diet.DailyDietRepository;
+import com.ssafy.yamyam_coach.repository.daily_diet.request.DailyDietUpdateRequest;
 import com.ssafy.yamyam_coach.repository.daily_diet.response.DailyDietDetail;
 import com.ssafy.yamyam_coach.repository.daily_diet.response.MealDetail;
 import com.ssafy.yamyam_coach.repository.daily_diet.response.MealFoodDetail;
 import com.ssafy.yamyam_coach.repository.diet_plan.DietPlanRepository;
 import com.ssafy.yamyam_coach.service.daily_diet.request.DailyDietDetailServiceRequest;
-import com.ssafy.yamyam_coach.service.daily_diet.request.DailyDietUpdateDateServiceRequest;
-import com.ssafy.yamyam_coach.service.daily_diet.request.DailyDietUpdateDescriptionServiceRequest;
+import com.ssafy.yamyam_coach.service.daily_diet.request.DailyDietUpdateServiceRequest;
 import com.ssafy.yamyam_coach.service.daily_diet.request.RegisterDailyDietServiceRequest;
 import com.ssafy.yamyam_coach.service.daily_diet.response.DailyDietDetailResponse;
 import com.ssafy.yamyam_coach.service.daily_diet.response.DailyDietResponse;
@@ -28,6 +28,7 @@ import java.time.format.TextStyle;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -52,14 +53,14 @@ public class DailyDietService {
         DietPlan dietPlan = dietPlanRepository.findById(request.getDietPlanId())
                 .orElseThrow(() -> new DietPlanException(NOT_FOUND_DIET_PLAN));
 
-        // 2. date 가 DietPlan 기간 내인지 검증
+        // 2. diet plan 이 현재 사용자의 것인지 검증
+        validateUser(currentUserId, dietPlan.getUserId());
+
+        // 3. date 가 DietPlan 기간 내인지 검증
         validateDate(dietPlan, request.getDate());
 
-        // 3. 중복된 date 가 있는지 검증
+        // 4. 중복된 date 가 있는지 검증
         validateDuplication(dietPlan, request.getDate());
-
-        // 4. diet plan 이 현재 사용자의 것인지 검증
-        validateUser(currentUserId, dietPlan.getUserId());
 
         // 5. daily diet 생성
         DailyDiet dailyDiet = DailyDiet.builder()
@@ -126,7 +127,8 @@ public class DailyDietService {
     }
 
     @Transactional
-    public void updateDescription(Long currentUserId, DailyDietUpdateDescriptionServiceRequest request) {
+    public void updateDailyDiet(Long currentUserId, DailyDietUpdateServiceRequest request) {
+
         // 1. daily diet 가 존재하는지 확인
         DailyDiet dailyDiet = dailyDietRepository.findById(request.getDailyDietId())
                 .orElseThrow(() -> new DailyDietException(NOT_FOUND_DAILY_DIET));
@@ -138,41 +140,42 @@ public class DailyDietService {
         // 3. 현재 사용자와 daily diet 사용자가 동일한지 검증
         validateUser(currentUserId, dietPlan.getUserId());
 
-        // 4. 이전 daily diet 의 description 과 새로 들어온 description 이 동일한 지 확인
-        if (dailyDiet.getDescription().equals(request.getNewDescription())) {
+        // 4. 변경 필요성 확인
+        boolean isDescriptionChanged = request.getDescription() != null && !request.getDescription().equals(dailyDiet.getDescription());
+        boolean isDateChanged = request.getDate() != null && !request.getDate().equals(dailyDiet.getDate());
+
+        if (!isDescriptionChanged && !isDateChanged) {
             return;
         }
 
-        // 5. 다르다면 update description
-        dailyDietRepository.updateDescription(dailyDiet.getId(), request.getNewDescription());
-    }
+        // 5. 새 날짜가 있을 경우
+        if (isDateChanged) {
+            // 5.1 diet plan 기간 내인지 검증
+            validateDate(dietPlan, request.getDate());
 
-    @Transactional
-    public void updateDate(Long currentUserId, DailyDietUpdateDateServiceRequest request) {
-        // 1. daily diet 가 존재하는지 확인
-        DailyDiet dailyDiet = dailyDietRepository.findById(request.getDailyDietId())
-                .orElseThrow(() -> new DailyDietException(NOT_FOUND_DAILY_DIET));
-
-        // 2. 이전 daily diet 의 date 과 새로 들어온 date 가 동일한 지 확인
-        if (dailyDiet.getDate().equals(request.getNewDate())) {
-            return;
+            // 5.2 diet plan 에 중복되는 날짜 있는지 검증
+            validateDuplication(dietPlan, request.getDate(), request.getDailyDietId());
         }
 
-        // 3. diet plan 조회
-        DietPlan dietPlan = dietPlanRepository.findById(dailyDiet.getDietPlanId())
-                .orElseThrow(() -> new DietPlanException(NOT_FOUND_DIET_PLAN));
+        // 6. update
+        String newDescription = request.getDescription();
+        LocalDate newDate = request.getDate();
 
-        // 4. 현재 사용자와 daily diet 사용자가 동일한지 검증
-        validateUser(currentUserId, dietPlan.getUserId());
+        if (!isDescriptionChanged) {
+            newDescription = dailyDiet.getDescription();
+        }
 
-        // 5. 새 날짜가 diet plan 기간 내인지 검증
-        validateDate(dietPlan, request.getNewDate());
+        if (!isDateChanged) {
+            newDate = dailyDiet.getDate();
+        }
 
-        // 6. 새 날짜에 이미 Daily Diet 가 있는지 검증
-        validateDuplication(dietPlan, request.getNewDate());
+        DailyDietUpdateRequest updateRequest = DailyDietUpdateRequest.builder()
+                .dailyDietId(request.getDailyDietId())
+                .description(newDescription)
+                .date(newDate)
+                .build();
 
-        // 7. update
-        dailyDietRepository.updateDate(dailyDiet.getId(), request.getNewDate());
+        dailyDietRepository.updateDailyDiet(updateRequest);
     }
 
     @Transactional
@@ -209,8 +212,21 @@ public class DailyDietService {
         }
     }
 
+    private void validateDuplication(DietPlan dietPlan, LocalDate date, Long dailyDietId) {
+        if (alreadyHasDailyDiet(dietPlan, date, dailyDietId)) {
+            throw new DailyDietException(DUPLICATED_DATE);
+        }
+    }
+
+    // 날짜 변경 대상 날짜에 이미 daily diet 가 있으면 true return
     private boolean alreadyHasDailyDiet(DietPlan dietPlan, LocalDate date) {
         return dailyDietRepository.findByDietPlanIdAndDate(dietPlan.getId(), date).isPresent();
+    }
+
+    // 날짜 변경 대상 날짜에 이미 daily diet 가 있고 현재 daily diet 가 동일하지 않을 경우 true return
+    private boolean alreadyHasDailyDiet(DietPlan dietPlan, LocalDate date, Long originalDailyDietId) {
+        Optional<DailyDiet> findDailyDietOpt = dailyDietRepository.findByDietPlanIdAndDate(dietPlan.getId(), date);
+        return findDailyDietOpt.isPresent() && !findDailyDietOpt.get().getId().equals(originalDailyDietId);
     }
 
     private DailyDietResponse toDailyDietResponse(DailyDiet dailyDiet) {

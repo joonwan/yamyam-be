@@ -16,13 +16,11 @@ import com.ssafy.yamyam_coach.repository.meal.MealRepository;
 import com.ssafy.yamyam_coach.repository.mealfood.MealFoodRepository;
 import com.ssafy.yamyam_coach.repository.user.UserRepository;
 import com.ssafy.yamyam_coach.service.daily_diet.request.DailyDietDetailServiceRequest;
-import com.ssafy.yamyam_coach.service.daily_diet.request.DailyDietUpdateDateServiceRequest;
-import com.ssafy.yamyam_coach.service.daily_diet.request.DailyDietUpdateDescriptionServiceRequest;
+import com.ssafy.yamyam_coach.service.daily_diet.request.DailyDietUpdateServiceRequest;
 import com.ssafy.yamyam_coach.service.daily_diet.request.RegisterDailyDietServiceRequest;
 import com.ssafy.yamyam_coach.service.daily_diet.response.DailyDietDetailResponse;
 import com.ssafy.yamyam_coach.service.daily_diet.response.DailyDietResponse;
 import com.ssafy.yamyam_coach.service.daily_diet.response.DailyDietsResponse;
-import com.ssafy.yamyam_coach.service.daily_diet.response.MealFoodDetailResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -335,9 +333,10 @@ class DailyDietServiceTest extends IntegrationTestSupport {
                 mealFoodRepository.insert(snackFood);
 
                 // when
-                DailyDietDetailServiceRequest request = new DailyDietDetailServiceRequest();
-                request.setDietPlanId(dietPlan.getId());
-                request.setDate(startDate);
+                DailyDietDetailServiceRequest request = DailyDietDetailServiceRequest.builder()
+                        .dietPlanId(dietPlan.getId())
+                        .date(startDate)
+                        .build();
 
                 DailyDietDetailResponse response = dailyDietService.getDailyDietDetailByDietPlan(request);
 
@@ -388,9 +387,10 @@ class DailyDietServiceTest extends IntegrationTestSupport {
                 mealFoodRepository.insert(lunchFood);
 
                 // when
-                DailyDietDetailServiceRequest request = new DailyDietDetailServiceRequest();
-                request.setDietPlanId(dietPlan.getId());
-                request.setDate(startDate);
+                DailyDietDetailServiceRequest request = DailyDietDetailServiceRequest.builder()
+                        .dietPlanId(dietPlan.getId())
+                        .date(startDate)
+                        .build();
 
                 DailyDietDetailResponse response = dailyDietService.getDailyDietDetailByDietPlan(request);
 
@@ -428,9 +428,10 @@ class DailyDietServiceTest extends IntegrationTestSupport {
                 dailyDietRepository.insert(dailyDiet);
 
                 // when
-                DailyDietDetailServiceRequest request = new DailyDietDetailServiceRequest();
-                request.setDietPlanId(dietPlan.getId());
-                request.setDate(date);
+                DailyDietDetailServiceRequest request = DailyDietDetailServiceRequest.builder()
+                        .dietPlanId(dietPlan.getId())
+                        .date(date)
+                        .build();
 
                 DailyDietDetailResponse response = dailyDietService.getDailyDietDetailByDietPlan(request);
 
@@ -458,9 +459,10 @@ class DailyDietServiceTest extends IntegrationTestSupport {
                 LocalDate nonExistentDate = LocalDate.of(2025, 12, 5);
 
                 // when
-                DailyDietDetailServiceRequest request = new DailyDietDetailServiceRequest();
-                request.setDietPlanId(dietPlan.getId());
-                request.setDate(nonExistentDate);
+                DailyDietDetailServiceRequest request = DailyDietDetailServiceRequest.builder()
+                        .dietPlanId(dietPlan.getId())
+                        .date(nonExistentDate)
+                        .build();
 
                 // then
                 assertThatThrownBy(() -> dailyDietService.getDailyDietDetailByDietPlan(request))
@@ -471,16 +473,16 @@ class DailyDietServiceTest extends IntegrationTestSupport {
     }
 
     @Nested
-    @DisplayName("UpdateDescription")
-    class UpdateDescription {
+    @DisplayName("updateDailyDiet")
+    class UpdateDailyDiet {
 
         @Nested
         @DisplayName("성공 케이스")
         class SuccessCase {
 
-            @DisplayName("DailyDiet의 description을 성공적으로 업데이트할 수 있다.")
+            @DisplayName("description만 변경할 수 있다.")
             @Test
-            void updateDescription() {
+            void updateDescriptionOnly() {
                 // given
                 User user = createDummyUser();
                 userRepository.save(user);
@@ -494,23 +496,57 @@ class DailyDietServiceTest extends IntegrationTestSupport {
                 dailyDietRepository.insert(dailyDiet);
 
                 // when
-                DailyDietUpdateDescriptionServiceRequest request = DailyDietUpdateDescriptionServiceRequest.builder()
+                DailyDietUpdateServiceRequest request = DailyDietUpdateServiceRequest.builder()
                         .dailyDietId(dailyDiet.getId())
-                        .newDescription("새로운 설명")
+                        .description("새로운 설명")
                         .build();
 
-                dailyDietService.updateDescription(user.getId(), request);
+                dailyDietService.updateDailyDiet(user.getId(), request);
 
                 DailyDiet updatedDailyDiet = dailyDietRepository.findById(dailyDiet.getId()).orElse(null);
 
                 // then
                 assertThat(updatedDailyDiet).isNotNull();
                 assertThat(updatedDailyDiet.getDescription()).isEqualTo("새로운 설명");
+                assertThat(updatedDailyDiet.getDate()).isEqualTo(startDate); // 날짜는 그대로
             }
 
-            @DisplayName("동일한 description으로 업데이트 시도 시 변경되지 않는다.")
+            @DisplayName("date만 변경할 수 있다.")
             @Test
-            void updateDescriptionWithSameValue() {
+            void updateDateOnly() {
+                // given
+                User user = createDummyUser();
+                userRepository.save(user);
+
+                LocalDate startDate = LocalDate.of(2025, 12, 1);
+                LocalDate endDate = startDate.plusDays(7);
+                DietPlan dietPlan = createDietPlan(user.getId(), "title", "content", false, false, startDate, endDate);
+                dietPlanRepository.insert(dietPlan);
+
+                DailyDiet dailyDiet = createDailyDiet(dietPlan.getId(), startDate, "식단 설명");
+                dailyDietRepository.insert(dailyDiet);
+
+                LocalDate newDate = startDate.plusDays(2);
+
+                // when
+                DailyDietUpdateServiceRequest request = DailyDietUpdateServiceRequest.builder()
+                        .dailyDietId(dailyDiet.getId())
+                        .date(newDate)
+                        .build();
+
+                dailyDietService.updateDailyDiet(user.getId(), request);
+
+                DailyDiet updatedDailyDiet = dailyDietRepository.findById(dailyDiet.getId()).orElse(null);
+
+                // then
+                assertThat(updatedDailyDiet).isNotNull();
+                assertThat(updatedDailyDiet.getDate()).isEqualTo(newDate);
+                assertThat(updatedDailyDiet.getDescription()).isEqualTo("식단 설명"); // 설명은 그대로
+            }
+
+            @DisplayName("description과 date를 동시에 변경할 수 있다.")
+            @Test
+            void updateBothDescriptionAndDate() {
                 // given
                 User user = createDummyUser();
                 userRepository.save(user);
@@ -523,19 +559,55 @@ class DailyDietServiceTest extends IntegrationTestSupport {
                 DailyDiet dailyDiet = createDailyDiet(dietPlan.getId(), startDate, "기존 설명");
                 dailyDietRepository.insert(dailyDiet);
 
+                LocalDate newDate = startDate.plusDays(3);
+
                 // when
-                DailyDietUpdateDescriptionServiceRequest request = DailyDietUpdateDescriptionServiceRequest.builder()
+                DailyDietUpdateServiceRequest request = DailyDietUpdateServiceRequest.builder()
                         .dailyDietId(dailyDiet.getId())
-                        .newDescription("기존 설명")
+                        .description("새로운 설명")
+                        .date(newDate)
                         .build();
 
-                dailyDietService.updateDescription(user.getId(), request);
+                dailyDietService.updateDailyDiet(user.getId(), request);
 
                 DailyDiet updatedDailyDiet = dailyDietRepository.findById(dailyDiet.getId()).orElse(null);
 
                 // then
                 assertThat(updatedDailyDiet).isNotNull();
+                assertThat(updatedDailyDiet.getDescription()).isEqualTo("새로운 설명");
+                assertThat(updatedDailyDiet.getDate()).isEqualTo(newDate);
+            }
+
+            @DisplayName("변경사항이 없으면 아무 작업도 수행하지 않는다.")
+            @Test
+            void noChanges() {
+                // given
+                User user = createDummyUser();
+                userRepository.save(user);
+
+                LocalDate startDate = LocalDate.of(2025, 12, 1);
+                LocalDate endDate = startDate.plusDays(7);
+                DietPlan dietPlan = createDietPlan(user.getId(), "title", "content", false, false, startDate, endDate);
+                dietPlanRepository.insert(dietPlan);
+
+                DailyDiet dailyDiet = createDailyDiet(dietPlan.getId(), startDate, "기존 설명");
+                dailyDietRepository.insert(dailyDiet);
+
+                // when - 동일한 값으로 업데이트 시도
+                DailyDietUpdateServiceRequest request = DailyDietUpdateServiceRequest.builder()
+                        .dailyDietId(dailyDiet.getId())
+                        .description("기존 설명")  // 동일
+                        .date(startDate)          // 동일
+                        .build();
+
+                dailyDietService.updateDailyDiet(user.getId(), request);
+
+                DailyDiet updatedDailyDiet = dailyDietRepository.findById(dailyDiet.getId()).orElse(null);
+
+                // then - 변경 없음
+                assertThat(updatedDailyDiet).isNotNull();
                 assertThat(updatedDailyDiet.getDescription()).isEqualTo("기존 설명");
+                assertThat(updatedDailyDiet.getDate()).isEqualTo(startDate);
             }
         }
 
@@ -543,7 +615,7 @@ class DailyDietServiceTest extends IntegrationTestSupport {
         @DisplayName("실패 케이스")
         class FailureCase {
 
-            @DisplayName("존재하지 않는 DailyDiet의 description을 업데이트하려 하면 NOT_FOUND_DAILY_DIET 예외가 발생한다.")
+            @DisplayName("존재하지 않는 DailyDiet를 업데이트하려 하면 NOT_FOUND_DAILY_DIET 예외가 발생한다.")
             @Test
             void dailyDietNotFound() {
                 // given
@@ -553,18 +625,18 @@ class DailyDietServiceTest extends IntegrationTestSupport {
                 Long notExistDailyDietId = 99999L;
 
                 // when
-                DailyDietUpdateDescriptionServiceRequest request = DailyDietUpdateDescriptionServiceRequest.builder()
+                DailyDietUpdateServiceRequest request = DailyDietUpdateServiceRequest.builder()
                         .dailyDietId(notExistDailyDietId)
-                        .newDescription("새로운 설명")
+                        .description("새로운 설명")
                         .build();
 
                 // then
-                assertThatThrownBy(() -> dailyDietService.updateDescription(user.getId(), request))
+                assertThatThrownBy(() -> dailyDietService.updateDailyDiet(user.getId(), request))
                         .isInstanceOf(DailyDietException.class)
                         .hasMessage("해당 일일 식단을 조회할 수 없습니다.");
             }
 
-            @DisplayName("다른 사용자의 DailyDiet description을 수정하려 하면 UNAUTHORIZED 예외가 발생한다.")
+            @DisplayName("다른 사용자의 DailyDiet를 수정하려 하면 UNAUTHORIZED 예외가 발생한다.")
             @Test
             void unauthorizedUser() {
                 // given
@@ -583,121 +655,22 @@ class DailyDietServiceTest extends IntegrationTestSupport {
                 dailyDietRepository.insert(dailyDiet);
 
                 // when
-                DailyDietUpdateDescriptionServiceRequest request = DailyDietUpdateDescriptionServiceRequest.builder()
+                DailyDietUpdateServiceRequest request = DailyDietUpdateServiceRequest.builder()
                         .dailyDietId(dailyDiet.getId())
-                        .newDescription("새로운 설명")
+                        .description("새로운 설명")
                         .build();
 
                 // then
-                assertThatThrownBy(() -> dailyDietService.updateDescription(other.getId(), request))
+                assertThatThrownBy(() -> dailyDietService.updateDailyDiet(other.getId(), request))
                         .isInstanceOf(DailyDietException.class)
                         .hasMessage("일일 식단 제어 권한이 없습니다.");
-            }
-        }
-    }
-
-    @Nested
-    @DisplayName("UpdateDate")
-    class UpdateDate {
-
-        @Nested
-        @DisplayName("성공 케이스")
-        class SuccessCase {
-
-            @DisplayName("DailyDiet의 날짜를 성공적으로 업데이트할 수 있다.")
-            @Test
-            void updateDate() {
-                // given
-                User user = createDummyUser();
-                userRepository.save(user);
-
-                LocalDate startDate = LocalDate.of(2025, 12, 1);
-                LocalDate endDate = startDate.plusDays(7);
-                DietPlan dietPlan = createDietPlan(user.getId(), "title", "content", false, false, startDate, endDate);
-                dietPlanRepository.insert(dietPlan);
-
-                DailyDiet dailyDiet = createDailyDiet(dietPlan.getId(), startDate, "식단 설명");
-                dailyDietRepository.insert(dailyDiet);
-
-                LocalDate newDate = startDate.plusDays(2);
-
-                // when
-                DailyDietUpdateDateServiceRequest request = DailyDietUpdateDateServiceRequest.builder()
-                        .dailyDietId(dailyDiet.getId())
-                        .newDate(newDate)
-                        .build();
-
-                dailyDietService.updateDate(user.getId(), request);
-
-                DailyDiet updatedDailyDiet = dailyDietRepository.findById(dailyDiet.getId()).orElse(null);
-
-                // then
-                assertThat(updatedDailyDiet).isNotNull();
-                assertThat(updatedDailyDiet.getDate()).isEqualTo(newDate);
-            }
-
-            @DisplayName("동일한 날짜로 업데이트 시도 시 변경되지 않는다.")
-            @Test
-            void updateDateWithSameValue() {
-                // given
-                User user = createDummyUser();
-                userRepository.save(user);
-
-                LocalDate startDate = LocalDate.of(2025, 12, 1);
-                LocalDate endDate = startDate.plusDays(7);
-                LocalDate sameDate = startDate;
-                DietPlan dietPlan = createDietPlan(user.getId(), "title", "content", false, false, startDate, endDate);
-                dietPlanRepository.insert(dietPlan);
-
-                DailyDiet dailyDiet = createDailyDiet(dietPlan.getId(), startDate, "식단 설명");
-                dailyDietRepository.insert(dailyDiet);
-
-                // when
-                DailyDietUpdateDateServiceRequest request = DailyDietUpdateDateServiceRequest.builder()
-                        .dailyDietId(dailyDiet.getId())
-                        .newDate(sameDate)
-                        .build();
-
-                dailyDietService.updateDate(user.getId(), request);
-
-                DailyDiet updatedDailyDiet = dailyDietRepository.findById(dailyDiet.getId()).orElse(null);
-
-                // then
-                assertThat(updatedDailyDiet).isNotNull();
-                assertThat(updatedDailyDiet.getDate()).isEqualTo(sameDate);
-            }
-        }
-
-        @Nested
-        @DisplayName("실패 케이스")
-        class FailureCase {
-
-            @DisplayName("존재하지 않는 DailyDiet의 날짜를 업데이트하려 하면 NOT_FOUND_DAILY_DIET 예외가 발생한다.")
-            @Test
-            void dailyDietNotFound() {
-                // given
-                User user = createDummyUser();
-                userRepository.save(user);
-
-                Long notExistDailyDietId = 99999L;
-
-                // when
-                DailyDietUpdateDateServiceRequest request = DailyDietUpdateDateServiceRequest.builder()
-                        .dailyDietId(notExistDailyDietId)
-                        .newDate(LocalDate.of(2025, 12, 1))
-                        .build();
-
-                // then
-                assertThatThrownBy(() -> dailyDietService.updateDate(user.getId(), request))
-                        .isInstanceOf(DailyDietException.class)
-                        .hasMessage("해당 일일 식단을 조회할 수 없습니다.");
             }
 
             @DisplayName("새 날짜가 DietPlan 기간을 벗어나면 INVALID_DATE 예외가 발생한다.")
             @ParameterizedTest
             @CsvSource({
-                    "2025-11-30",
-                    "2025-12-10"
+                    "2025-11-30",  // startDate 이전
+                    "2025-12-10"   // endDate 이후
             })
             void invalidDate(String dateStr) {
                 // given
@@ -715,18 +688,18 @@ class DailyDietServiceTest extends IntegrationTestSupport {
                 LocalDate invalidDate = LocalDate.parse(dateStr);
 
                 // when
-                DailyDietUpdateDateServiceRequest request = DailyDietUpdateDateServiceRequest.builder()
+                DailyDietUpdateServiceRequest request = DailyDietUpdateServiceRequest.builder()
                         .dailyDietId(dailyDiet.getId())
-                        .newDate(invalidDate)
+                        .date(invalidDate)
                         .build();
 
                 // then
-                assertThatThrownBy(() -> dailyDietService.updateDate(user.getId(), request))
+                assertThatThrownBy(() -> dailyDietService.updateDailyDiet(user.getId(), request))
                         .isInstanceOf(DailyDietException.class)
                         .hasMessage("날짜가 식단 계획 기간을 벗어났습니다.");
             }
 
-            @DisplayName("새 날짜에 이미 DailyDiet가 존재하면 DUPLICATED_DATE 예외가 발생한다.")
+            @DisplayName("새 날짜에 이미 다른 DailyDiet가 존재하면 DUPLICATED_DATE 예외가 발생한다.")
             @Test
             void duplicatedDate() {
                 // given
@@ -748,47 +721,15 @@ class DailyDietServiceTest extends IntegrationTestSupport {
                 dailyDietRepository.insert(dailyDiet2);
 
                 // when - dailyDiet2의 날짜를 dailyDiet1과 동일하게 변경 시도
-                DailyDietUpdateDateServiceRequest request = DailyDietUpdateDateServiceRequest.builder()
+                DailyDietUpdateServiceRequest request = DailyDietUpdateServiceRequest.builder()
                         .dailyDietId(dailyDiet2.getId())
-                        .newDate(dailyDiet1.getDate())
+                        .date(dailyDiet1.getDate())  // 이미 존재하는 날짜
                         .build();
 
                 // then
-                assertThatThrownBy(() -> dailyDietService.updateDate(user.getId(), request))
+                assertThatThrownBy(() -> dailyDietService.updateDailyDiet(user.getId(), request))
                         .isInstanceOf(DailyDietException.class)
                         .hasMessage("이미 해당 날짜의 식단이 존재합니다.");
-            }
-
-            @DisplayName("다른 사용자의 DailyDiet 날짜를 수정하려 하면 UNAUTHORIZED 예외가 발생한다.")
-            @Test
-            void unauthorizedUser() {
-                // given
-                User owner = createUser("user", "user nickname", "user@test.com", "password");
-                userRepository.save(owner);
-
-                User other = createUser("other", "other nickname", "other@test.com", "password");
-                userRepository.save(other);
-
-                LocalDate startDate = LocalDate.of(2025, 12, 1);
-                LocalDate endDate = startDate.plusDays(7);
-                DietPlan dietPlan = createDietPlan(owner.getId(), "title", "content", false, false, startDate, endDate);
-                dietPlanRepository.insert(dietPlan);
-
-                DailyDiet dailyDiet = createDailyDiet(dietPlan.getId(), startDate, "식단 설명");
-                dailyDietRepository.insert(dailyDiet);
-
-                LocalDate newDate = startDate.plusDays(2);
-
-                // when
-                DailyDietUpdateDateServiceRequest request = DailyDietUpdateDateServiceRequest.builder()
-                        .dailyDietId(dailyDiet.getId())
-                        .newDate(newDate)
-                        .build();
-
-                // then
-                assertThatThrownBy(() -> dailyDietService.updateDate(other.getId(), request))
-                        .isInstanceOf(DailyDietException.class)
-                        .hasMessage("일일 식단 제어 권한이 없습니다.");
             }
         }
     }
