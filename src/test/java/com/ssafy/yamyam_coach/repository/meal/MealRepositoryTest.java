@@ -10,6 +10,7 @@ import com.ssafy.yamyam_coach.repository.daily_diet.DailyDietRepository;
 import com.ssafy.yamyam_coach.repository.diet_plan.DietPlanRepository;
 import com.ssafy.yamyam_coach.repository.user.UserRepository;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -95,5 +96,59 @@ class MealRepositoryTest extends IntegrationTestSupport {
         assertThat(lunchOpt).isNotPresent();
         assertThat(dinnerOpt).isNotPresent();
         assertThat(snackOpt).isNotPresent();
+    }
+
+    @Nested
+    @DisplayName("existsByDailyDietAndMealType")
+    class ExistsByDailyDietAndMealType {
+
+        @Nested
+        @DisplayName("성공 케이스")
+        class SuccessCase {
+
+            @DisplayName("특정 타입의 식사가 이미 있을 경우 true 를 반환한다.")
+            @Test
+            void alreadyExistMealType() {
+                // given
+                User user = createDummyUser();
+                userRepository.save(user);
+
+                DietPlan dietPlan = createDummyDietPlan(user.getId(), LocalDate.now(), LocalDate.now().plusDays(1));
+                dietPlanRepository.insert(dietPlan);
+
+                DailyDiet dailyDiet = createDailyDiet(dietPlan.getId(), LocalDate.now(), "description");
+                dailyDietRepository.insert(dailyDiet);
+
+                Meal breakfast = createMeal(dailyDiet.getId(), MealType.BREAKFAST);
+                mealRepository.insert(breakfast);
+
+                // when
+                boolean isExists = mealRepository.existsByDailyDietAndMealType(dailyDiet.getId(), MealType.BREAKFAST);
+
+                // then
+                assertThat(isExists).isTrue();
+            }
+
+            @DisplayName("특정 타입의 식사가 없을 경우 false 를 반환한다.")
+            @Test
+            void notExistMealType() {
+                // given
+                User user = createDummyUser();
+                userRepository.save(user);
+
+                DietPlan dietPlan = createDummyDietPlan(user.getId(), LocalDate.now(), LocalDate.now().plusDays(1));
+                dietPlanRepository.insert(dietPlan);
+
+                DailyDiet dailyDiet = createDailyDiet(dietPlan.getId(), LocalDate.now(), "description");
+                dailyDietRepository.insert(dailyDiet);
+
+                // when
+                boolean isExists = mealRepository.existsByDailyDietAndMealType(dailyDiet.getId(), MealType.BREAKFAST);
+
+                // then
+                assertThat(isExists).isFalse();
+            }
+        }
+
     }
 }
