@@ -1,7 +1,6 @@
 package com.ssafy.yamyam_coach.controller.diet_plan;
 
 import com.ssafy.yamyam_coach.controller.diet_plan.request.CreateDietPlanRequest;
-import com.ssafy.yamyam_coach.service.daily_diet.DailyDietService;
 import com.ssafy.yamyam_coach.service.diet_plan.DietPlanService;
 import com.ssafy.yamyam_coach.service.diet_plan.response.DietPlanServiceResponse;
 import jakarta.validation.Valid;
