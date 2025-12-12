@@ -19,4 +19,6 @@ public interface MealRepository {
     Optional<Meal> findByDailyDietAndMealType(Long dailyDietId, MealType mealType);
 
     int deleteById(Long mealId);
+
+    int updateMealType(Long mealId, MealType mealType);
 }

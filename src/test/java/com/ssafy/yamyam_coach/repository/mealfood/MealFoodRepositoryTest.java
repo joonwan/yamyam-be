@@ -145,10 +145,44 @@ class MealFoodRepositoryTest extends IntegrationTestSupport {
         MealFood mealFood2 = createMealFood(meal.getId(), food2.getId(), 100.2);
         mealFoodRepository.batchInsert(List.of(mealFood1, mealFood2));
 
-        int deleteCount = mealFoodRepository.deleteBydMealId(meal.getId());
+        int deleteCount = mealFoodRepository.deleteByMealId(meal.getId());
 
         //then
         assertThat(deleteCount).isEqualTo(2);
+    }
+
+    @DisplayName("meal id 로 meal food 들을 조회할 수 있다.")
+    @Test
+    void findByMeal() {
+        User user = createDummyUser();
+        userRepository.save(user);
+
+        DietPlan dietPlan = createDummyDietPlan(user.getId(), LocalDate.now(), LocalDate.now().plusDays(1));
+        dietPlanRepository.insert(dietPlan);
+
+        DailyDiet dailyDiet = createDailyDiet(dietPlan.getId(), LocalDate.now(), "description");
+        dailyDietRepository.insert(dailyDiet);
+
+        Meal meal = createMeal(dailyDiet.getId(), MealType.BREAKFAST);
+        mealRepository.insert(meal);
+
+        List<Food> foods = createDummyFoods10();
+
+        Food food1 = foods.get(0);
+        Food food2 = foods.get(1);
+
+        foodRepository.insert(food1);
+        foodRepository.insert(food2);
+
+        MealFood mealFood1 = createMealFood(meal.getId(), food1.getId(), 100.1);
+        MealFood mealFood2 = createMealFood(meal.getId(), food2.getId(), 100.2);
+        mealFoodRepository.batchInsert(List.of(mealFood1, mealFood2));
+
+        //when
+        List<MealFood> findMealFoods = mealFoodRepository.findByMeal(meal.getId());
+        assertThat(findMealFoods).hasSize(2)
+                .extracting(MealFood::getId)
+                .containsExactlyInAnyOrder(mealFood1.getId(), mealFood2.getId());
     }
 
 }

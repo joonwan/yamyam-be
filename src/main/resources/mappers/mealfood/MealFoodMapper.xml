@@ -28,6 +28,12 @@
         WHERE id = #{mealFoodId}
     </select>
 
+    <select id="findByMeal" resultType="MealFood">
+        SELECT *
+        FROM meal_foods
+        WHERE meal_id = #{mealId}
+    </select>
+
     <delete id="deleteByMealId">
         DELETE FROM meal_foods
         WHERE meal_id = #{mealId}

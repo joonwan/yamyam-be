@@ -17,4 +17,10 @@ public interface MealMapper {
     Meal findById(Long mealId);
 
     boolean existsByDailyDietAndMealType(@Param("dailyDietId") Long dailyDietId, @Param("mealType") MealType mealType);
+
+    Meal findByDailyDietAndMealType(Long dailyDietId, MealType mealType);
+
+    int deleteById(Long mealId);
+
+    int updateMealType(Long mealId, MealType mealType);
 }

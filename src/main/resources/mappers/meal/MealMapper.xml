@@ -41,4 +41,10 @@
         WHERE id = #{mealId}
     </delete>
 
+    <update id="updateMealType">
+        UPDATE meals
+            SET type = #{mealType}
+        WHERE id = #{mealId}
+    </update>
+
 </mapper>

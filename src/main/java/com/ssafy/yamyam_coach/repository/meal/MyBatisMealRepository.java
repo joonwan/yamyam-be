@@ -44,4 +44,9 @@ public class MyBatisMealRepository implements MealRepository {
     public int deleteById(Long mealId) {
         return mealMapper.deleteById(mealId);
     }
+
+    @Override
+    public int updateMealType(Long mealId, MealType mealType) {
+        return mealMapper.updateMealType(mealId, mealType);
+    }
 }

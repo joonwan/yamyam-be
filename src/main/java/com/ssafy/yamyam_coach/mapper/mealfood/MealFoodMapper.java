@@ -16,4 +16,6 @@ public interface MealFoodMapper {
     MealFood findById(Long mealFoodId);
 
     int deleteByMealId(Long mealId);
+
+    List<MealFood> findByMeal(Long mealId);
 }

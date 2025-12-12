@@ -29,4 +29,14 @@ public class MyBatisMealFoodRepository implements MealFoodRepository {
     public int batchInsert(List<MealFood> mealFoods) {
         return mealFoodMapper.batchInsert(mealFoods);
     }
+
+    @Override
+    public int deleteByMealId(Long mealId) {
+        return mealFoodMapper.deleteByMealId(mealId);
+    }
+
+    @Override
+    public List<MealFood> findByMeal(Long mealId) {
+        return mealFoodMapper.findByMeal(mealId);
+    }
 }
