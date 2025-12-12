@@ -28,4 +28,9 @@
         WHERE id = #{mealFoodId}
     </select>
 
+    <delete id="deleteByMealId">
+        DELETE FROM meal_foods
+        WHERE meal_id = #{mealId}
+    </delete>
+
 </mapper>

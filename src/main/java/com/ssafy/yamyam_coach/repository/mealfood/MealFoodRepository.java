@@ -12,4 +12,6 @@ public interface MealFoodRepository {
     Optional<MealFood> findById(Long mealFoodId);
 
     int batchInsert(List<MealFood> mealFoods);
+
+    int deleteBydMealId(Long mealId);
 }

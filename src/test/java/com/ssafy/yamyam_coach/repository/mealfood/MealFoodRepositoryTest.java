@@ -115,4 +115,40 @@ class MealFoodRepositoryTest extends IntegrationTestSupport {
 
     }
 
+    @DisplayName("meal id 로 해당되는 모든 meal food 를 삭제할 수 있다..")
+    @Test
+    void deleteByMeaId() {
+        //given
+
+        User user = createDummyUser();
+        userRepository.save(user);
+
+        DietPlan dietPlan = createDummyDietPlan(user.getId(), LocalDate.now(), LocalDate.now().plusDays(1));
+        dietPlanRepository.insert(dietPlan);
+
+        DailyDiet dailyDiet = createDailyDiet(dietPlan.getId(), LocalDate.now(), "description");
+        dailyDietRepository.insert(dailyDiet);
+
+        Meal meal = createMeal(dailyDiet.getId(), MealType.BREAKFAST);
+        mealRepository.insert(meal);
+
+        List<Food> foods = createDummyFoods10();
+
+        Food food1 = foods.get(0);
+        Food food2 = foods.get(1);
+
+        foodRepository.insert(food1);
+        foodRepository.insert(food2);
+
+        //when
+        MealFood mealFood1 = createMealFood(meal.getId(), food1.getId(), 100.1);
+        MealFood mealFood2 = createMealFood(meal.getId(), food2.getId(), 100.2);
+        mealFoodRepository.batchInsert(List.of(mealFood1, mealFood2));
+
+        int deleteCount = mealFoodRepository.deleteBydMealId(meal.getId());
+
+        //then
+        assertThat(deleteCount).isEqualTo(2);
+    }
+
 }
