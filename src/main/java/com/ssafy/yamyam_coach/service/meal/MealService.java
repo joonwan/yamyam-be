@@ -14,11 +14,13 @@ import com.ssafy.yamyam_coach.repository.daily_diet.DailyDietRepository;
 import com.ssafy.yamyam_coach.repository.diet_plan.DietPlanRepository;
 import com.ssafy.yamyam_coach.repository.food.FoodRepository;
 import com.ssafy.yamyam_coach.repository.meal.MealRepository;
+import com.ssafy.yamyam_coach.repository.meal.response.MealDetail;
 import com.ssafy.yamyam_coach.repository.mealfood.MealFoodRepository;
-import com.ssafy.yamyam_coach.service.meal.request.CreateMealFoodRequest;
+import com.ssafy.yamyam_coach.service.meal.request.CreateMealFoodServiceRequest;
 import com.ssafy.yamyam_coach.service.meal.request.CreateMealServiceRequest;
 import com.ssafy.yamyam_coach.service.meal.request.UpdateMealFoodServiceRequest;
 import com.ssafy.yamyam_coach.service.meal.request.UpdateMealServiceRequest;
+import com.ssafy.yamyam_coach.service.meal.response.MealDetailServiceResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -41,7 +43,7 @@ public class MealService {
     private final FoodRepository foodRepository;
 
     @Transactional
-    public void createMeal(Long currentUserId, CreateMealServiceRequest request) {
+    public Long createMeal(Long currentUserId, CreateMealServiceRequest request) {
 
         // 1. dailyDiet 조회 및 존재 검증
         DailyDiet dailyDiet = dailyDietRepository.findById(request.getDailyDietId())
@@ -74,6 +76,8 @@ public class MealService {
                 .toList();
 
         mealFoodRepository.batchInsert(mealFoods);
+
+        return meal.getId();
     }
 
     @Transactional
@@ -118,6 +122,15 @@ public class MealService {
         mealFoodRepository.batchInsert(mealFoods);
     }
 
+    public MealDetailServiceResponse getMealById(Long mealId) {
+        // 1. meal 상세 정보 조회 (JOIN으로 meal_food + food 정보 포함)
+        MealDetail mealDetail = mealRepository.findMealDetailById(mealId)
+                .orElseThrow(() -> new MealException(com.ssafy.yamyam_coach.exception.meal.ErrorCode.NOT_FOUND_MEAL));
+
+        // 2. Service Response로 변환
+        return MealDetailServiceResponse.from(mealDetail);
+    }
+
     @Transactional
     public void deleteMeal(Long currentUserId, Long mealId) {
         // 1.meal id 를 통해 meal 이 존재하는지 확인
@@ -139,14 +152,14 @@ public class MealService {
         int deleteCount = mealRepository.deleteById(mealId);
 
         // 6. return 이 1 미만일 경우 예외
-        if (deleteCount != 1) {
+        if (deleteCount < 1) {
             throw new MealException(com.ssafy.yamyam_coach.exception.meal.ErrorCode.NOT_FOUND_MEAL);
         }
     }
 
-    private void validateFoods(List<CreateMealFoodRequest> mealFoodRequests) {
+    private void validateFoods(List<CreateMealFoodServiceRequest> mealFoodRequests) {
         Set<Long> foodIds = mealFoodRequests.stream()
-                .map(CreateMealFoodRequest::getFoodId)
+                .map(CreateMealFoodServiceRequest::getFoodId)
                 .collect(Collectors.toSet());
 
         int existingIds = foodRepository.countExistingIds(foodIds);
@@ -180,7 +193,7 @@ public class MealService {
         }
     }
 
-    private MealFood createMealFood(CreateMealFoodRequest createMealFoodRequest, Long mealId) {
+    private MealFood createMealFood(CreateMealFoodServiceRequest createMealFoodRequest, Long mealId) {
         return MealFood.builder()
                 .foodId(createMealFoodRequest.getFoodId())
                 .quantity(createMealFoodRequest.getAmount())
