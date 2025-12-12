@@ -206,7 +206,33 @@ class MealRepositoryTest extends IntegrationTestSupport {
                 assertThat(findBreakfast).isNull();
             }
         }
+    }
+    @DisplayName("meal id 로 meal 을 삭제할 수 있다.")
+    @Test
+    void deleteById() {
+        // given
+        User user = createDummyUser();
+        userRepository.save(user);
 
+        DietPlan dietPlan = createDummyDietPlan(user.getId(), LocalDate.now(), LocalDate.now().plusDays(1));
+        dietPlanRepository.insert(dietPlan);
+
+        DailyDiet dailyDiet = createDailyDiet(dietPlan.getId(), LocalDate.now(), "description");
+        dailyDietRepository.insert(dailyDiet);
+
+        Meal breakfast = createMeal(dailyDiet.getId(), MealType.BREAKFAST);
+        mealRepository.insert(breakfast);
+
+        Meal lunch = createMeal(dailyDiet.getId(), MealType.LUNCH);
+        mealRepository.insert(lunch);
+
+        // when
+        int deleteCount = mealRepository.deleteById(breakfast.getId());
+        Meal findMeal = mealRepository.findById(breakfast.getId()).orElse(null);
+
+        // then
+        assertThat(deleteCount).isOne();
+        assertThat(findMeal).isNull();
 
     }
 }

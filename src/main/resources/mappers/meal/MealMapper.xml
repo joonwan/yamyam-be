@@ -36,4 +36,9 @@
           and type = #{mealType}
     </select>
 
+    <delete id="deleteById">
+        DELETE FROM meals
+        WHERE id = #{mealId}
+    </delete>
+
 </mapper>

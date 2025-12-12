@@ -39,4 +39,9 @@ public class MyBatisMealRepository implements MealRepository {
     public Optional<Meal> findByDailyDietAndMealType(Long dailyDietId, MealType mealType) {
         return Optional.ofNullable(mealMapper.findByDailyDietAndMealType(dailyDietId, mealType));
     }
+
+    @Override
+    public int deleteById(Long mealId) {
+        return mealMapper.deleteById(mealId);
+    }
 }
