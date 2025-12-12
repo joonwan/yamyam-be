@@ -5,6 +5,36 @@
 
 <mapper namespace="com.ssafy.yamyam_coach.mapper.meal.MealMapper">
 
+    <!-- ResultMap for MealDetail with JOIN -->
+    <resultMap id="mealDetailMap" type="com.ssafy.yamyam_coach.repository.meal.response.MealDetail">
+        <id property="id" column="m_id"/>
+        <result property="type" column="m_type"/>
+        <result property="dailyDietId" column="m_daily_diet_id"/>
+
+        <!-- MealFood 컬렉션 -->
+        <collection property="mealFoods" ofType="com.ssafy.yamyam_coach.repository.meal.response.MealFoodDetail">
+            <id property="id" column="mf_id"/>
+            <result property="quantity" column="mf_quantity"/>
+
+            <!-- Food 객체 -->
+            <association property="food" javaType="com.ssafy.yamyam_coach.domain.food.Food">
+                <id property="id" column="f_id"/>
+                <result property="name" column="f_name"/>
+                <result property="category" column="f_category"/>
+                <result property="baseUnit" column="f_base_unit"/>
+                <result property="energyPer100" column="f_energy_per_100"/>
+                <result property="proteinPer100" column="f_protein_per_100"/>
+                <result property="fatPer100" column="f_fat_per_100"/>
+                <result property="carbohydratePer100" column="f_carbohydrate_per_100"/>
+                <result property="sugarPer100" column="f_sugar_per_100"/>
+                <result property="sodiumPer100" column="f_sodium_per_100"/>
+                <result property="cholesterolPer100" column="f_cholesterol_per_100"/>
+                <result property="saturatedFatPer100" column="f_saturated_fat_per_100"/>
+                <result property="transFatPer100" column="f_trans_fat_per_100"/>
+            </association>
+        </collection>
+    </resultMap>
+
     <insert id="insert" parameterType="Meal" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO meals(daily_diet_id, type)
         VALUES (#{dailyDietId}, #{type})
@@ -13,7 +43,35 @@
     <select id="findById" resultType="Meal">
         SELECT *
         FROM meals
-        WHERE id = #{meaId}
+        WHERE id = #{mealId}
+    </select>
+
+    <select id="findMealDetailById" resultMap="mealDetailMap">
+        SELECT m.id                    as m_id,
+               m.type                  as m_type,
+               m.daily_diet_id         as m_daily_diet_id,
+
+               mf.id                   as mf_id,
+               mf.quantity             as mf_quantity,
+
+               f.id                    as f_id,
+               f.name                  as f_name,
+               f.category              as f_category,
+               f.base_unit             as f_base_unit,
+               f.energy_per_100        as f_energy_per_100,
+               f.protein_per_100       as f_protein_per_100,
+               f.fat_per_100           as f_fat_per_100,
+               f.carbohydrate_per_100  as f_carbohydrate_per_100,
+               f.sugar_per_100         as f_sugar_per_100,
+               f.sodium_per_100        as f_sodium_per_100,
+               f.cholesterol_per_100   as f_cholesterol_per_100,
+               f.saturated_fat_per_100 as f_saturated_fat_per_100,
+               f.trans_fat_per_100     as f_trans_fat_per_100
+        FROM meals m
+                 LEFT JOIN meal_foods mf ON m.id = mf.meal_id
+                 LEFT JOIN foods f ON mf.food_id = f.id
+        WHERE m.id = #{mealId}
+        ORDER BY mf.id
     </select>
 
     <delete id="deleteByDailyDietId">

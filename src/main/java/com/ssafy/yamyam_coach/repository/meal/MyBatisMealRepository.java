@@ -3,6 +3,7 @@ package com.ssafy.yamyam_coach.repository.meal;
 import com.ssafy.yamyam_coach.domain.meals.Meal;
 import com.ssafy.yamyam_coach.domain.meals.MealType;
 import com.ssafy.yamyam_coach.mapper.meal.MealMapper;
+import com.ssafy.yamyam_coach.repository.meal.response.MealDetail;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -23,6 +24,11 @@ public class MyBatisMealRepository implements MealRepository {
     @Override
     public Optional<Meal> findById(Long mealId) {
         return Optional.ofNullable(mealMapper.findById(mealId));
+    }
+
+    @Override
+    public Optional<MealDetail> findMealDetailById(Long mealId) {
+        return Optional.ofNullable(mealMapper.findMealDetailById(mealId));
     }
 
     @Override
