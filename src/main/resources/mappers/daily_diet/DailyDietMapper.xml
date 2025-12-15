@@ -130,4 +130,14 @@
         FROM daily_diets
         WHERE id = #{dailyDietId}
     </delete>
+
+    <delete id="deleteByDietPlanAndDateInBatch">
+        DELETE
+        FROM daily_diets
+        WHERE diet_plan_id = #{dietPlanId} AND date IN
+            <foreach collection="datesToDelete" item="dateToDelete" open="(" separator="," close=")">
+                #{dateToDelete}
+            </foreach>
+
+    </delete>
 </mapper>

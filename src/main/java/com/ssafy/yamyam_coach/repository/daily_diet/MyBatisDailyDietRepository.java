@@ -5,6 +5,7 @@ import com.ssafy.yamyam_coach.mapper.daily_diet.DailyDietMapper;
 import com.ssafy.yamyam_coach.repository.daily_diet.request.DailyDietUpdateRequest;
 import com.ssafy.yamyam_coach.repository.daily_diet.response.DailyDietDetail;
 import lombok.RequiredArgsConstructor;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -55,6 +56,11 @@ public class MyBatisDailyDietRepository implements DailyDietRepository {
     @Override
     public int deleteById(Long dailyDietId) {
         return dailyDietMapper.deleteById(dailyDietId);
+    }
+
+    @Override
+    public int deleteByDietPlanAndDateInBatch(Long dietPlanId, List<LocalDate> datesToDelete) {
+        return dailyDietMapper.deleteByDietPlanAndDateInBatch(dietPlanId, datesToDelete);
     }
 
 }

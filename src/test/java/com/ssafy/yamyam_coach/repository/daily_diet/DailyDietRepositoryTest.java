@@ -266,7 +266,7 @@ class DailyDietRepositoryTest extends IntegrationTestSupport {
                 dietPlanRepository.insert(dietPlan);
 
                 String oldDescription = "old description";
-                String  newDescription = "new description";
+                String newDescription = "new description";
 
                 LocalDate createdDate = LocalDate.of(2025, 12, 12);
                 DailyDiet dailyDiet = createDailyDiet(dietPlan.getId(), createdDate, oldDescription);
@@ -299,7 +299,7 @@ class DailyDietRepositoryTest extends IntegrationTestSupport {
                 dietPlanRepository.insert(dietPlan);
 
                 String oldDescription = "old description";
-                String  newDescription = "new description";
+                String newDescription = "new description";
 
                 LocalDate createdDate = LocalDate.of(2025, 12, 12);
                 LocalDate updatedDate = LocalDate.of(2025, 12, 12);
@@ -323,5 +323,39 @@ class DailyDietRepositoryTest extends IntegrationTestSupport {
 
             }
         }
+    }
+
+    @DisplayName("해당 diet plan id 를 가지고 특정 날짜 list 에 속하는 날짜를 가진 daily diet 는 삭제된다.")
+    @Test
+    void deleteByDietPlanAndDateInBatch() {
+
+        //given
+        User user = createDummyUser();
+        userRepository.save(user);
+
+        LocalDate startDate = LocalDate.now();
+
+        DietPlan dietPlan = createDummyDietPlan(user.getId(), startDate, startDate.plusDays(7));
+        dietPlanRepository.insert(dietPlan);
+
+        DailyDiet dailyDiet1 = createDailyDiet(dietPlan.getId(), startDate, "description1");
+        dailyDietRepository.insert(dailyDiet1);
+
+        DailyDiet dailyDiet2 = createDailyDiet(dietPlan.getId(), startDate.plusDays(1), "description1");
+        dailyDietRepository.insert(dailyDiet2);
+
+        DailyDiet dailyDiet3 = createDailyDiet(dietPlan.getId(), startDate.plusDays(2), "description1");
+        dailyDietRepository.insert(dailyDiet3);
+
+        //when
+        List<LocalDate> datesToDelete = List.of(startDate, startDate.plusDays(2));
+        dailyDietRepository.deleteByDietPlanAndDateInBatch(dietPlan.getId(), datesToDelete);
+
+        //then
+        List<DailyDiet> findDailyDiets = dailyDietRepository.findByDietPlan(dietPlan.getId());
+        assertThat(findDailyDiets).hasSize(1)
+                .extracting(DailyDiet::getId)
+                .containsExactlyInAnyOrder(dailyDiet2.getId());
+
     }
 }
