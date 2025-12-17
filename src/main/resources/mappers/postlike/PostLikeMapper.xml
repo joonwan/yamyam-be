@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafy.yamyam_coach.mapper.postlike.PostLikeMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO post_likes(post_id, user_id, created_at)
+        VALUES (#{postId}, #{userId}, #{createdAt})
+    </insert>
+
+    <select id="findById" resultType="PostLike">
+        SELECT *
+        FROM post_likes
+        WHERE id = #{postLikeId}
+    </select>
+
+    <select id="findByPostAndUser" resultType="PostLike">
+        SELECT *
+        FROM post_likes
+        WHERE post_id = #{postId}
+          AND user_id = #{userId}
+    </select>
+
+    <delete id="deleteByPostAndUser">
+        DELETE
+        FROM post_likes
+        WHERE post_id = #{postId}
+          AND user_id = #{userId}
+    </delete>
+</mapper>
+
