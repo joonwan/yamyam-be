@@ -48,7 +48,7 @@ public class DietPlanService {
 
         // 2. 권한 검증 (본인 것만 삭제 가능)
         if (!dietPlan.getUserId().equals(currentUserId)) {
-            throw new DietPlanException(UNAUTHORIZED);
+            throw new DietPlanException(UNAUTHORIZED_FOR_DELETE);
         }
 
         // 3. 삭제
@@ -151,7 +151,7 @@ public class DietPlanService {
 
     private void validateUser(Long currentUserId, Long userId) {
         if (!currentUserId.equals(userId)) {
-            throw new DietPlanException(UNAUTHORIZED);
+            throw new DietPlanException(UNAUTHORIZED_FOR_DELETE);
         }
     }
 

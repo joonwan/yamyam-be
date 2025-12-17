@@ -157,7 +157,7 @@ class DietPlanServiceTest extends IntegrationTestSupport {
 
             }
 
-            @DisplayName("요청자 자신의 Diet plan 이 아닌 Diet plan 을 삭제 시도하면 UNAUTHORIZED 예외가 발생한다.")
+            @DisplayName("요청자 자신의 Diet plan 이 아닌 Diet plan 을 삭제 시도하면 UNAUTHORIZED_FOR_DELETE 예외가 발생한다.")
             @Test
             void unAuthorizedDietPlan() {
                 //given
@@ -599,7 +599,7 @@ class DietPlanServiceTest extends IntegrationTestSupport {
                         .hasMessage("해당 식단 계획을 조회할 수 없습니다.");
             }
 
-            @DisplayName("다른 사용자의 DietPlan 업데이트 시도시 UNAUTHORIZED 예외가 발생한다.")
+            @DisplayName("다른 사용자의 DietPlan 업데이트 시도시 UNAUTHORIZED_FOR_DELETE 예외가 발생한다.")
             @Test
             void unauthorizedDietPlan() {
                 // given

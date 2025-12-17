@@ -185,7 +185,7 @@ class DailyDietServiceTest extends IntegrationTestSupport {
                         .hasMessage("이미 해당 날짜의 식단이 존재합니다.");
             }
 
-            @DisplayName("사용자의 diet plan 이 아닌 경우 UNAUTHORIZED 예외가 발생한다.")
+            @DisplayName("사용자의 diet plan 이 아닌 경우 UNAUTHORIZED_FOR_DELETE 예외가 발생한다.")
             @Test
             void unauthorizedDietPlan() {
 
@@ -647,7 +647,7 @@ class DailyDietServiceTest extends IntegrationTestSupport {
                         .hasMessage("해당 일일 식단을 조회할 수 없습니다.");
             }
 
-            @DisplayName("다른 사용자의 DailyDiet를 수정하려 하면 UNAUTHORIZED 예외가 발생한다.")
+            @DisplayName("다른 사용자의 DailyDiet를 수정하려 하면 UNAUTHORIZED_FOR_DELETE 예외가 발생한다.")
             @Test
             void unauthorizedUser() {
                 // given
@@ -797,7 +797,7 @@ class DailyDietServiceTest extends IntegrationTestSupport {
                         .hasMessage("해당 일일 식단을 조회할 수 없습니다.");
             }
 
-            @DisplayName("다른 사용자의 DailyDiet를 삭제하려 하면 UNAUTHORIZED 예외가 발생한다.")
+            @DisplayName("다른 사용자의 DailyDiet를 삭제하려 하면 UNAUTHORIZED_FOR_DELETE 예외가 발생한다.")
             @Test
             void unauthorizedUser() {
                 // given

@@ -4,14 +4,15 @@ import lombok.Builder;
 import lombok.Data;
 
 @Data
-public class CreatePostServiceRequest {
-
+public class UpdatePostServiceRequest {
+    private Long postId;
     private Long dietPlanId;
     private String title;
     private String content;
 
     @Builder
-    private CreatePostServiceRequest(Long dietPlanId, String title, String content) {
+    private UpdatePostServiceRequest(Long postId, Long dietPlanId, String title, String content) {
+        this.postId = postId;
         this.dietPlanId = dietPlanId;
         this.title = title;
         this.content = content;

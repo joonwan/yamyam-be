@@ -139,7 +139,7 @@ class MealServiceTest extends IntegrationTestSupport {
             }
 
             @Test
-            @DisplayName("다른 사용자의 dietPlan에 meal 생성 시도 시 UNAUTHORIZED 예외가 발생한다")
+            @DisplayName("다른 사용자의 dietPlan에 meal 생성 시도 시 UNAUTHORIZED_FOR_DELETE 예외가 발생한다")
             void createMealWithOtherUsersDietPlan() {
                 // given
                 User user = createDummyUser();
@@ -371,7 +371,7 @@ class MealServiceTest extends IntegrationTestSupport {
             }
 
             @Test
-            @DisplayName("다른 사용자의 meal을 수정하려 할 때 UNAUTHORIZED 예외가 발생한다")
+            @DisplayName("다른 사용자의 meal을 수정하려 할 때 UNAUTHORIZED_FOR_DELETE 예외가 발생한다")
             void updateOtherUsersMeal() {
                 // given
                 User user = createDummyUser();
@@ -534,7 +534,7 @@ class MealServiceTest extends IntegrationTestSupport {
             }
 
             @Test
-            @DisplayName("다른 사용자의 meal을 삭제하려 할 때 UNAUTHORIZED 예외가 발생한다")
+            @DisplayName("다른 사용자의 meal을 삭제하려 할 때 UNAUTHORIZED_FOR_DELETE 예외가 발생한다")
             void deleteOtherUsersMeal() {
                 // given
                 User user = createDummyUser();
