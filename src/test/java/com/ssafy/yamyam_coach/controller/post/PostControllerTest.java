@@ -591,4 +591,62 @@ class PostControllerTest extends RestControllerTestSupport {
             }
         }
     }
+
+    @Nested
+    @DisplayName("likePost")
+    class LikePost {
+
+        @Nested
+        @DisplayName("성공 케이스")
+        class SuccessCase{
+
+            @DisplayName("좋아요 요청할 경우 200 응답이 반환된다.")
+            @Test
+            void likePost() throws Exception {
+                // given
+
+                Long postId = 1L;
+
+                // stubbing
+                doNothing().when(postService).likePost(anyLong(), anyLong());
+
+                // when then
+                mockMvc.perform(
+                        post("/api/posts/{postId}/like", postId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                        .andDo(print())
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$").doesNotExist());
+            }
+        }
+
+        @Nested
+        @DisplayName("실패 케이스")
+        class FailureCase {
+
+            @DisplayName("post 를 찾을 수 없을 경우 404 응답이 반환된다.")
+            @Test
+            void notFoundPost() throws Exception {
+                // given
+                Long notExists = 9999999L;
+
+                // stubbing
+                doThrow(new PostException(NOT_FOUND_POST))
+                        .when(postService).likePost(anyLong(), anyLong());
+
+                // when then
+                mockMvc.perform(
+                                post("/api/posts/{postId}/like", notExists)
+                                        .contentType(MediaType.APPLICATION_JSON)
+                        )
+                        .andDo(print())
+                        .andExpect(status().isNotFound())
+                        .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.value()))
+                        .andExpect(jsonPath("$.message").value("해당 게시글을 찾을 수 없습니다."))
+                        .andExpect(jsonPath("$.timestamp").isNotEmpty());
+
+            }
+        }
+    }
 }

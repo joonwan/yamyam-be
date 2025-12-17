@@ -36,7 +36,7 @@ public class PostController {
     }
 
     @PatchMapping("/{postId}")
-    public ResponseEntity<Void> updatePost(@LoginUser User currentUser, @PathVariable("postId") Long postId, @RequestBody @Valid UpdatePostRequest request) {
+    public ResponseEntity<Void> updatePost(@LoginUser User currentUser, @PathVariable Long postId, @RequestBody @Valid UpdatePostRequest request) {
         Long currentUserId = currentUser.getId();
 
         UpdatePostServiceRequest serviceRequest = UpdatePostServiceRequest.builder()
@@ -51,11 +51,18 @@ public class PostController {
     }
 
     @DeleteMapping("/{postId}")
-    public ResponseEntity<Void> deletePost(@LoginUser User currentUser, @PathVariable("postId") Long postId) {
+    public ResponseEntity<Void> deletePost(@LoginUser User currentUser, @PathVariable Long postId) {
         Long currentUserId = currentUser.getId();
 
         postService.deletePost(currentUserId, postId);
 
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{postId}/like")
+    public ResponseEntity<Void> likePost(@LoginUser User currentUser, @PathVariable Long postId) {
+        Long currentUserId = currentUser.getId();
+        postService.likePost(currentUserId, postId);
         return ResponseEntity.ok().build();
     }
 
