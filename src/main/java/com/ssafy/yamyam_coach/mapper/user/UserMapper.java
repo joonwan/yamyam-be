@@ -2,7 +2,9 @@ package com.ssafy.yamyam_coach.mapper.user;
 
 import com.ssafy.yamyam_coach.domain.user.User;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 @Mapper
@@ -17,4 +19,6 @@ public interface UserMapper {
     boolean existsByNickname(String nickname);
 
     User findById(Long userId);
+
+    List<User> searchByKeyword(@Param("keyword") String keyword);
 }

@@ -27,5 +27,12 @@
         WHERE id = #{userId}
     </select>
 
+    <select id="searchByKeyword" resultType="User">
+        SELECT * FROM users
+        WHERE name LIKE CONCAT('%', #{keyword}, '%')
+           OR nickname LIKE CONCAT('%', #{keyword}, '%')
+           OR email LIKE CONCAT('%', #{keyword}, '%')
+    </select>
+
 </mapper>
 

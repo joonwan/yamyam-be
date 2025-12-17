@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.ssafy.yamyam_coach.mapper.FollowMapper">
+<mapper namespace="com.ssafy.yamyam_coach.mapper.follow.FollowMapper">
 
     <insert id="save" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO follows (follower_id, followed_id, created_at)
@@ -27,6 +27,18 @@
 
     <select id="countFollowing" resultType="int">
         SELECT COUNT(*) FROM follows WHERE follower_id = #{userId}
+    </select>
+
+    <select id="findFollowers" resultType="com.ssafy.yamyam_coach.domain.user.User">
+        SELECT u.* FROM users u
+                            INNER JOIN follows f ON u.id = f.follower_id
+        WHERE f.followed_id = #{userId}
+    </select>
+
+    <select id="findFollowing" resultType="com.ssafy.yamyam_coach.domain.user.User">
+        SELECT u.* FROM users u
+                            INNER JOIN follows f ON u.id = f.followed_id
+        WHERE f.follower_id = #{userId}
     </select>
 
 </mapper>

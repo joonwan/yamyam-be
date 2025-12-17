@@ -7,11 +7,14 @@ import com.ssafy.yamyam_coach.global.annotation.LoginUser;
 import com.ssafy.yamyam_coach.service.user.UserService;
 import com.ssafy.yamyam_coach.service.user.response.UserLoginServiceResponse;
 import com.ssafy.yamyam_coach.service.user.response.UserResponse;
+import com.ssafy.yamyam_coach.service.user.response.UserSearchResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -41,5 +44,21 @@ public class UserController {
 
         // 서비스에게 "이 유저 프로필 정보 줘" 하고 시키기
         return ResponseEntity.ok(userService.getUserProfile(user));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<UserSearchResponse>> searchUsers(
+            @LoginUser User user,
+            @RequestParam String keyword) {
+
+        // 로그인 안 했으면 401 에러
+        if (user == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        // 서비스로 검색 요청 (내 ID도 같이 넘겨서 팔로우 여부 확인)
+        List<UserSearchResponse> result = userService.searchUsers(keyword, user.getId());
+
+        return ResponseEntity.ok(result);
     }
 }
