@@ -1,25 +1,40 @@
 package com.ssafy.yamyam_coach.service.post;
 
+import com.ssafy.yamyam_coach.domain.daily_diet.DailyDiet;
 import com.ssafy.yamyam_coach.domain.dietplan.DietPlan;
+import com.ssafy.yamyam_coach.domain.mealfood.MealFood;
+import com.ssafy.yamyam_coach.domain.meals.Meal;
 import com.ssafy.yamyam_coach.domain.post.Post;
 import com.ssafy.yamyam_coach.domain.postlike.PostLike;
-import com.ssafy.yamyam_coach.exception.diet_plan.DietPlanErrorCode;
 import com.ssafy.yamyam_coach.exception.diet_plan.DietPlanException;
 import com.ssafy.yamyam_coach.exception.post.PostException;
+import com.ssafy.yamyam_coach.repository.daily_diet.DailyDietRepository;
+import com.ssafy.yamyam_coach.repository.daily_diet.response.DailyDietDetail;
+import com.ssafy.yamyam_coach.repository.daily_diet.response.MealDetail;
+import com.ssafy.yamyam_coach.repository.daily_diet.response.MealFoodDetail;
 import com.ssafy.yamyam_coach.repository.diet_plan.DietPlanRepository;
+import com.ssafy.yamyam_coach.repository.meal.MealRepository;
+import com.ssafy.yamyam_coach.repository.mealfood.MealFoodRepository;
 import com.ssafy.yamyam_coach.repository.post.PostRepository;
 import com.ssafy.yamyam_coach.repository.post.request.UpdatePostRepositoryRequest;
 import com.ssafy.yamyam_coach.repository.post.response.PostDetailResponse;
+import com.ssafy.yamyam_coach.repository.post.response.PostInfoResponse;
 import com.ssafy.yamyam_coach.repository.postlike.PostLikeRepository;
+import com.ssafy.yamyam_coach.service.diet_plan.DietPlanService;
+import com.ssafy.yamyam_coach.service.diet_plan.request.CreateDietPlanServiceRequest;
 import com.ssafy.yamyam_coach.service.post.request.CreatePostServiceRequest;
 import com.ssafy.yamyam_coach.service.post.request.UpdatePostServiceRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
+import static com.ssafy.yamyam_coach.exception.diet_plan.DietPlanErrorCode.*;
 import static com.ssafy.yamyam_coach.exception.post.PostErrorCode.NOT_FOUND_POST;
 
 @Service
@@ -30,6 +45,10 @@ public class PostService {
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
     private final DietPlanRepository dietPlanRepository;
+    private final DietPlanService dietPlanService;
+    private final DailyDietRepository dailyDietRepository;
+    private final MealRepository mealRepository;
+    private final MealFoodRepository mealFoodRepository;
 
     @Transactional
     public Long createPost(Long currentUserId, CreatePostServiceRequest request) {
@@ -39,7 +58,7 @@ public class PostService {
         // 1. diet plan id 기반 조회
         if (request.getDietPlanId() != null) {
             DietPlan dietPlan = dietPlanRepository.findById(request.getDietPlanId())
-                    .orElseThrow(() -> new DietPlanException(DietPlanErrorCode.NOT_FOUND_DIET_PLAN));
+                    .orElseThrow(() -> new DietPlanException(NOT_FOUND_DIET_PLAN));
 
             // 2. diet plan 이 요청자의 것인지 검증
             validateUser(currentUserId, dietPlan.getUserId());
@@ -66,7 +85,7 @@ public class PostService {
         //    -1 일경우 post 에 연관된 diet plan 해제 -> PostMapper.xml 참조
         if (isDietPlanUpdateRequired(request)) {
             DietPlan dietPlan = dietPlanRepository.findById(request.getDietPlanId())
-                    .orElseThrow(() -> new DietPlanException(DietPlanErrorCode.NOT_FOUND_DIET_PLAN));
+                    .orElseThrow(() -> new DietPlanException(NOT_FOUND_DIET_PLAN));
 
             validateUser(currentUserId, dietPlan.getUserId());
         }
@@ -141,14 +160,20 @@ public class PostService {
         postRepository.decrementLikeCount(postId);
     }
 
+
+
     public PostDetailResponse getPostDetail(Long currentUserId, Long postId) {
        return postRepository.findPostDetail(postId, currentUserId)
                .orElseThrow(() -> new PostException(NOT_FOUND_POST));
     }
 
+    public List<PostInfoResponse> getPostsDetail() {
+        return postRepository.findPostInfos();
+    }
+
     private void validateUser(Long currentUserId, Long userId) {
         if (!currentUserId.equals(userId)) {
-            throw new DietPlanException(DietPlanErrorCode.UNAUTHORIZED_FOR_POST);
+            throw new DietPlanException(UNAUTHORIZED_FOR_POST);
         }
     }
 

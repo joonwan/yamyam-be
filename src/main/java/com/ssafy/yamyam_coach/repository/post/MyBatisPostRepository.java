@@ -4,9 +4,11 @@ import com.ssafy.yamyam_coach.domain.post.Post;
 import com.ssafy.yamyam_coach.mapper.post.PostMapper;
 import com.ssafy.yamyam_coach.repository.post.request.UpdatePostRepositoryRequest;
 import com.ssafy.yamyam_coach.repository.post.response.PostDetailResponse;
+import com.ssafy.yamyam_coach.repository.post.response.PostInfoResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -53,5 +55,10 @@ public class MyBatisPostRepository implements PostRepository {
     @Override
     public int decrementLikeCount(Long postId) {
         return postMapper.decrementLikeCount(postId);
+    }
+
+    @Override
+    public List<PostInfoResponse> findPostInfos() {
+        return postMapper.findPostInfos();
     }
 }

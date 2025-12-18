@@ -37,6 +37,28 @@
         </collection>
     </resultMap>
 
+    <resultMap id="PostInfoResponseMap" type="com.ssafy.yamyam_coach.repository.post.response.PostInfoResponse">
+        <id property="postId" column="post_id" />
+
+        <result property="title" column="title" />
+        <result property="likeCount" column="like_count" />
+        <result property="createdAt" column="created_at" />
+
+        <result property="authorNickname" column="nickname" />
+    </resultMap>
+
+    <select id="findPostInfos" resultMap="PostInfoResponseMap">
+        SELECT
+            p.id AS post_id,
+            p.title,
+            p.like_count,
+            p.created_at,
+            u.nickname
+        FROM posts p
+                 INNER JOIN users u ON p.user_id = u.id
+        ORDER BY p.created_at DESC
+    </select>
+
     <select id="findPostDetail" resultMap="PostDetailMap">
         SELECT p.id          AS post_id,
                p.title       AS post_title,

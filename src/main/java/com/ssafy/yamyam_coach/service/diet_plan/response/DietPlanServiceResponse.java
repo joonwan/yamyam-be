@@ -10,6 +10,9 @@ import java.time.LocalDate;
 public class DietPlanServiceResponse {
 
     private Long dietPlanId;
+    private Long authorId;
+    private String dietPlanTitle;
+    private String dietPlanDescription;
     private String title;
     private String content;
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -19,8 +22,11 @@ public class DietPlanServiceResponse {
     private boolean isPrimary;
 
     @Builder
-    private DietPlanServiceResponse(Long dietPlanId, String title, String content, LocalDate startDate, LocalDate endDate, boolean isPrimary) {
+    private DietPlanServiceResponse(Long dietPlanId, Long authorId, String dietPlanTitle, String dietPlanDescription, String title, String content, LocalDate startDate, LocalDate endDate, boolean isPrimary) {
         this.dietPlanId = dietPlanId;
+        this.authorId = authorId;
+        this.dietPlanTitle = dietPlanTitle;
+        this.dietPlanDescription = dietPlanDescription;
         this.title = title;
         this.content = content;
         this.startDate = startDate;

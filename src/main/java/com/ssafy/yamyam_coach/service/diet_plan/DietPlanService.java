@@ -1,10 +1,18 @@
 package com.ssafy.yamyam_coach.service.diet_plan;
 
+import com.ssafy.yamyam_coach.domain.daily_diet.DailyDiet;
+import com.ssafy.yamyam_coach.domain.mealfood.MealFood;
+import com.ssafy.yamyam_coach.domain.meals.Meal;
 import com.ssafy.yamyam_coach.exception.diet_plan.DietPlanException;
 import com.ssafy.yamyam_coach.domain.dietplan.DietPlan;
 import com.ssafy.yamyam_coach.repository.daily_diet.DailyDietRepository;
+import com.ssafy.yamyam_coach.repository.daily_diet.response.DailyDietDetail;
+import com.ssafy.yamyam_coach.repository.daily_diet.response.MealDetail;
+import com.ssafy.yamyam_coach.repository.daily_diet.response.MealFoodDetail;
 import com.ssafy.yamyam_coach.repository.diet_plan.DietPlanRepository;
 import com.ssafy.yamyam_coach.repository.diet_plan.request.UpdateDietPlanRepositoryRequest;
+import com.ssafy.yamyam_coach.repository.meal.MealRepository;
+import com.ssafy.yamyam_coach.repository.mealfood.MealFoodRepository;
 import com.ssafy.yamyam_coach.service.diet_plan.request.CreateDietPlanServiceRequest;
 import com.ssafy.yamyam_coach.service.diet_plan.request.UpdateDietPlanServiceRequest;
 import com.ssafy.yamyam_coach.service.diet_plan.response.DietPlanServiceResponse;
@@ -20,6 +28,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static com.ssafy.yamyam_coach.exception.diet_plan.DietPlanErrorCode.*;
+import static com.ssafy.yamyam_coach.exception.post.PostErrorCode.NOT_FOUND_POST;
 
 @Service
 @Slf4j
@@ -29,6 +38,8 @@ public class DietPlanService {
 
     private final DietPlanRepository dietPlanRepository;
     private final DailyDietRepository dailyDietRepository;
+    private final MealRepository mealRepository;
+    private final MealFoodRepository mealFoodRepository;
 
     @Transactional
     public Long registerDietPlan(Long currentUserId, CreateDietPlanServiceRequest request) {
@@ -149,6 +160,85 @@ public class DietPlanService {
         dietPlanRepository.update(repositoryRequest);
     }
 
+    @Transactional
+    public Long copyDietPlan(Long currentUserId, Long dietPlanId) {
+
+        // 2. post 기반 연관된 diet plan 조회 및 검증
+        DietPlan dietPlan = dietPlanRepository.findById(dietPlanId)
+                .orElseThrow(() -> new DietPlanException(NOT_FOUND_DIET_PLAN));
+
+        // 3. 요청자의 diet plan 이면 return
+        if (dietPlan.getUserId().equals(currentUserId)) {
+            return dietPlan.getId();
+        }
+
+        // 4. diet plan copy 후 저장
+        CreateDietPlanServiceRequest createDietPlanRequest = CreateDietPlanServiceRequest.builder()
+                .title(dietPlan.getTitle())
+                .content(dietPlan.getContent())
+                .startDate(dietPlan.getStartDate())
+                .endDate(dietPlan.getEndDate())
+                .build();
+
+        Long copyDietPlanId = registerDietPlan(currentUserId, createDietPlanRequest);
+
+
+        // 4. diet plan 기반으로 daily diet detail 들 조회
+
+        long duration = java.time.temporal.ChronoUnit.DAYS.between(dietPlan.getStartDate(), dietPlan.getEndDate()) + 1;
+
+        List<LocalDate> dates = Stream.iterate(dietPlan.getStartDate(), d -> d.plusDays(1))
+                .limit(duration)
+                .toList();
+
+        // 5. 날짜 순회하면서 DailyDietDetail 들 조회
+        for (LocalDate date : dates) {
+
+            Optional<DailyDietDetail> detailOpt = dailyDietRepository.findDetailByDietPlanIdAndDate(dietPlan.getId(), date);
+            if (detailOpt.isEmpty()) {
+                continue;
+            }
+
+            DailyDietDetail dailyDietDetail = detailOpt.get(); // daily diet detail
+
+            // daily diet 복사 후 저장
+            DailyDiet copyDailyDiet = DailyDiet.builder()
+                    .dietPlanId(copyDietPlanId)
+                    .description(dailyDietDetail.getDescription())
+                    .date(date)
+                    .build();
+
+            dailyDietRepository.insert(copyDailyDiet);
+
+            List<MealDetail> mealDetails = dailyDietDetail.getMeals(); // meal details
+
+            // meal 들 복사 저장
+            for (MealDetail mealDetail : mealDetails) {
+                Meal copyMeal = Meal.builder()
+                        .dailyDietId(copyDailyDiet.getId())
+                        .type(mealDetail.getType())
+                        .build();
+
+                mealRepository.insert(copyMeal);
+
+                List<MealFoodDetail> mealFoods = mealDetail.getMealFoods();
+
+                // meal food 들 복사 후 저장
+                for (MealFoodDetail mealFoodDetail : mealFoods) {
+                    MealFood copyMealFood  = MealFood.builder()
+                            .mealId(copyMeal.getId())
+                            .foodId(mealFoodDetail.getFood().getId())
+                            .quantity(mealFoodDetail.getQuantity())
+                            .build();
+
+                    mealFoodRepository.insert(copyMealFood);
+                }
+            }
+        }
+
+        return copyDietPlanId;
+    }
+
     private void validateUser(Long currentUserId, Long userId) {
         if (!currentUserId.equals(userId)) {
             throw new DietPlanException(UNAUTHORIZED_FOR_DELETE);
@@ -173,6 +263,7 @@ public class DietPlanService {
     private DietPlanServiceResponse toDietPlanResponse(DietPlan dietPlan) {
         return DietPlanServiceResponse.builder()
                 .dietPlanId(dietPlan.getId())
+                .authorId(dietPlan.getUserId())
                 .title(dietPlan.getTitle())
                 .content(dietPlan.getContent())
                 .isPrimary(dietPlan.isPrimary())

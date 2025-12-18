@@ -5,6 +5,7 @@ import com.ssafy.yamyam_coach.controller.post.request.UpdatePostRequest;
 import com.ssafy.yamyam_coach.domain.user.User;
 import com.ssafy.yamyam_coach.global.annotation.LoginUser;
 import com.ssafy.yamyam_coach.repository.post.response.PostDetailResponse;
+import com.ssafy.yamyam_coach.repository.post.response.PostInfoResponse;
 import com.ssafy.yamyam_coach.service.post.PostService;
 import com.ssafy.yamyam_coach.service.post.request.UpdatePostServiceRequest;
 import jakarta.validation.Valid;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,6 +36,11 @@ public class PostController {
                 .toUri();
 
         return ResponseEntity.created(location).build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<PostInfoResponse>> getPostInfos() {
+        return ResponseEntity.ok(postService.getPostsDetail());
     }
 
     @GetMapping("/{postId}")

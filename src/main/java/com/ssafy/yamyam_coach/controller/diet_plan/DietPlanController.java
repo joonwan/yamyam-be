@@ -95,4 +95,19 @@ public class DietPlanController {
         return ResponseEntity.ok(dietPlanService.getPrimaryDietPlan(currentUserId));
     }
 
+    @PostMapping("/{dietPlanId}/copy")
+    public ResponseEntity<Void> copyDietPlan(@LoginUser User currentUser, @PathVariable Long dietPlanId) {
+        log.debug("copy request!!");
+        Long currentUserId = currentUser.getId();
+        Long copyDietPlanId = dietPlanService.copyDietPlan(currentUserId, dietPlanId);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(copyDietPlanId)
+                .toUri();
+
+        return ResponseEntity.created(location).build();
+    }
+
 }

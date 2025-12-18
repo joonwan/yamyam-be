@@ -3,7 +3,10 @@ package com.ssafy.yamyam_coach.mapper.post;
 import com.ssafy.yamyam_coach.domain.post.Post;
 import com.ssafy.yamyam_coach.repository.post.request.UpdatePostRepositoryRequest;
 import com.ssafy.yamyam_coach.repository.post.response.PostDetailResponse;
+import com.ssafy.yamyam_coach.repository.post.response.PostInfoResponse;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
 
 @Mapper
 public interface PostMapper {
@@ -23,4 +26,6 @@ public interface PostMapper {
     Post findByIdForUpdate(Long postId);
 
     int decrementLikeCount(Long postId);
+
+    List<PostInfoResponse> findPostInfos();
 }
