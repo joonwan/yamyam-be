@@ -49,4 +49,28 @@
         UPDATE challenges SET status = 'DELETED' WHERE id = #{challengeId}
     </update>
 
+    <select id="findLogDates" resultType="string">
+        SELECT log_date
+        FROM challenge_daily_logs
+        WHERE challenge_id = #{challengeId} AND user_id = #{userId}
+        ORDER BY log_date ASC
+    </select>
+
+    <insert id="saveDailyLog">
+        INSERT INTO challenge_daily_logs (user_id, challenge_id, log_date)
+        VALUES (#{userId}, #{challengeId}, #{logDate})
+    </insert>
+
+    <delete id="deleteDailyLog">
+        DELETE FROM challenge_daily_logs
+        WHERE user_id = #{userId} AND challenge_id = #{challengeId} AND log_date = #{logDate}
+    </delete>
+
+    <select id="existsLog" resultType="boolean">
+        SELECT EXISTS(
+            SELECT 1 FROM challenge_daily_logs
+            WHERE user_id = #{userId} AND challenge_id = #{challengeId} AND log_date = #{logDate}
+        )
+    </select>
+
 </mapper>
