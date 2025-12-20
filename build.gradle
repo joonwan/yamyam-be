@@ -22,10 +22,24 @@ configurations {
 
 repositories {
     mavenCentral()
+    // Spring AI는 milestone/snapshot 저장소가 필요할 수 있음
+    maven { url 'https://repo.spring.io/milestone' }
+    maven { url 'https://repo.spring.io/snapshot' }
+}
+
+// Spring AI BOM 추가
+ext {
+    springAiVersion = '1.1.0'  // 사진의 버전
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
+    }
 }
 
 dependencies {
-    // implementation 'org.springframework.boot:spring-boot-starter-security'
+    // 기존 의존성들
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.5'
@@ -42,17 +56,19 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
     // test container 의존성
-    testImplementation "org.testcontainers:testcontainers"                      // test container module
-    testImplementation "org.testcontainers:junit-jupiter"                       // junit 5 integration module
-    testImplementation "org.testcontainers:mysql"                               // test container module
-    testImplementation 'org.springframework.boot:spring-boot-testcontainers'    // test container module
+    testImplementation "org.testcontainers:testcontainers"
+    testImplementation "org.testcontainers:junit-jupiter"
+    testImplementation "org.testcontainers:mysql"
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
 
-    // Google GenAI Embedding 지원
-    implementation 'org.springframework.ai:spring-ai-google-genai-embedding-spring-boot-starter'
+    // ===== Spring AI 의존성 추가 =====
+    // Google Genai Embedding Model
+    implementation 'org.springframework.ai:spring-ai-starter-model-google-genai-embedding'
 
-    // Redis Vector Store 지원
-    implementation 'org.springframework.ai:spring-ai-redis-store-spring-boot-starter'
+    // Redis Vector Store
+    implementation 'org.springframework.ai:spring-ai-starter-vector-store-redis'
 }
 
 tasks.named('test') {
