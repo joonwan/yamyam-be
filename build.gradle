@@ -47,6 +47,12 @@ dependencies {
     testImplementation "org.testcontainers:junit-jupiter"                       // junit 5 integration module
     testImplementation "org.testcontainers:mysql"                               // test container module
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'    // test container module
+
+    // Google GenAI Embedding 지원
+    implementation 'org.springframework.ai:spring-ai-google-genai-embedding-spring-boot-starter'
+
+    // Redis Vector Store 지원
+    implementation 'org.springframework.ai:spring-ai-redis-store-spring-boot-starter'
 }
 
 tasks.named('test') {
