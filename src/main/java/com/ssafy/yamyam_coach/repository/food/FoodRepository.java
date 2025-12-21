@@ -10,6 +10,8 @@ public interface FoodRepository {
 
     int insert(Food food);
 
+    List<Food> findAllPaged(int size, int offset);
+
     Optional<Food> findById(Long foodId);
 
     List<Food> findByNameLike(String name);

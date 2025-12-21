@@ -64,13 +64,21 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'
 
     // ===== Spring AI 의존성 추가 =====
-    // Google Genai Embedding Model
-    implementation 'org.springframework.ai:spring-ai-starter-model-google-genai-embedding'
+    // Google Genai Chat
+    implementation 'org.springframework.ai:spring-ai-starter-model-google-genai'
+
+    // OpenAI (Chat + Embedding) - Embedding은 OpenAI 사용
+    implementation 'org.springframework.ai:spring-ai-starter-model-openai'
 
     // Redis Vector Store
     implementation 'org.springframework.ai:spring-ai-starter-vector-store-redis'
+
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed", "standardOut", "standardError"
+        showStandardStreams = true
+    }
 }

@@ -38,5 +38,6 @@ public class DocumentVectorStoreTest extends IntegrationTestSupport {
 
         // then
         assertThat(result).hasSize(2);
+        System.out.println("result = " + result);
     }
 }

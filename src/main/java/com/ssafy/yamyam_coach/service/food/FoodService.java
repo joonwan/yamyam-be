@@ -26,6 +26,10 @@ public class FoodService {
                 .toList();
     }
 
+    public List<Food> findAllPaged(int size, int offset) {
+        return foodRepository.findAllPaged(size, offset);
+    }
+
     private SearchFoodServiceResponse toSearchFoodServiceResponse(Food food) {
         return SearchFoodServiceResponse.builder()
                 .foodId(food.getId())

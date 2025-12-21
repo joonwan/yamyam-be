@@ -17,4 +17,6 @@ public interface FoodMapper {
     int insert(Food food);
 
     Food findById(Long foodId);
+
+    List<Food> findAllPaged(@Param("size") int size,  @Param("offset") int offset);
 }

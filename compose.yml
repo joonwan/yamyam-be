@@ -1,0 +1,26 @@
+services:
+  my-db:
+    image: mysql:8.0
+    container_name: yumyum-mysql
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+      - ./my.cnf:/etc/mysql/conf.d/my.cnf
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: yumyum_coach
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+
+  redis-vector:
+    image: redis/redis-stack:latest
+    container_name: yumyum-redis
+    ports:
+      - "6379:6379"   # Redis 기본 포트
+      - "8001:8001"   # Redis Insight (웹 GUI 도구)
+    volumes:
+      - ./redis_data:/data # 데이터 영속성 유지 (Volume Mount)
+    environment:
+      - REDIS_ARGS=--save 60 1 # 60초 안에 1개 이상의 변경이 있으면 디스크에 저장

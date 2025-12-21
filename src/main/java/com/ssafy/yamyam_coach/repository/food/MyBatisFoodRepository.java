@@ -23,6 +23,11 @@ public class MyBatisFoodRepository implements FoodRepository {
     }
 
     @Override
+    public List<Food> findAllPaged(int size, int offset) {
+        return foodMapper.findAllPaged(size, offset);
+    }
+
+    @Override
     public Optional<Food> findById(Long foodId) {
         return Optional.ofNullable(foodMapper.findById(foodId));
     }
