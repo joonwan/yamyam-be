@@ -2,6 +2,7 @@ package com.ssafy.yamyam_coach.global.config;
 
 import com.google.genai.Client;
 import com.google.genai.types.HttpOptions;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.google.genai.GoogleGenAiChatModel;
 import org.springframework.ai.google.genai.GoogleGenAiChatOptions;
@@ -43,6 +44,11 @@ public class AiConfig{
                 .genAiClient(client)
                 .defaultOptions(options)
                 .build();
+    }
+
+    @Bean
+    public ChatClient chatClient(ChatModel chatModel) {
+        return ChatClient.builder(chatModel).build();
     }
 
     // OpenAI Embedding은 AutoConfiguration 사용
