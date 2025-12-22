@@ -66,4 +66,12 @@
         </foreach>
     </select>
 
+    <select id="findAllPaged">
+        SELECT *
+        FROM foods
+        ORDER BY id
+            LIMIT #{size}
+        OFFSET #{offset}
+    </select>
+
 </mapper>

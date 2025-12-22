@@ -1,5 +1,6 @@
 -- 데이터베이스 생성
-CREATE DATABASE IF NOT EXISTS yumyum_coach CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE
+DATABASE IF NOT EXISTS yumyum_coach CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE yumyum_coach;
 
 -- 사용자 테이블
@@ -10,20 +11,21 @@ CREATE TABLE users
     password   VARCHAR(100)        NOT NULL,
     nickname   VARCHAR(100) UNIQUE NOT NULL,
     name       VARCHAR(100)        NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    created_at DATETIME    DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    role       VARCHAR(20) DEFAULT 'USER'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 -- 문자열 비교 및 정렬 규칙 옵션. utf8mb4: 문자 인코딩 방식(이모지 포함 모든 유니코드 지원), unicode: 유니코드 표준에 따른 정렬, ci: Case Insensitive: 대소문자 구분 안함
 
 CREATE TABLE body_specs
 (
-    id      BIGINT PRIMARY KEY AUTO_INCREMENT,
-    user_id BIGINT      NOT NULL,
-    height  INT         NOT NULL COMMENT '키(cm)',
-    weight  INT         NOT NULL COMMENT '체중(kg)',
-    age     INT         NOT NULL COMMENT '나이',
-    gender  VARCHAR(50) NOT NULL COMMENT '성별',
-    date    DATETIME    NOT NULL COMMENT '측정일',
+    id         BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id    BIGINT      NOT NULL,
+    height     INT         NOT NULL COMMENT '키(cm)',
+    weight     INT         NOT NULL COMMENT '체중(kg)',
+    age        INT         NOT NULL COMMENT '나이',
+    gender     VARCHAR(50) NOT NULL COMMENT '성별',
+    created_at DATETIME    NOT NULL COMMENT '측정일',
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -76,7 +78,7 @@ CREATE TABLE diet_plans
     UNIQUE INDEX ux_user_primary_diet (
         user_id,
         (CASE WHEN is_primary = TRUE THEN 1 ELSE NULL END)
-    )
+        )
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE daily_diets
@@ -112,11 +114,15 @@ CREATE TABLE meal_foods
 CREATE TABLE challenges
 (
     id          BIGINT PRIMARY KEY AUTO_INCREMENT,
+    creator_id  BIGINT        NOT NULL COMMENT '생성자 ID (users.id)',
     title       VARCHAR(1000) NOT NULL COMMENT '챌린지 제목',
     description TEXT COMMENT '챌린지 설명',
     start_date  DATETIME      NOT NULL COMMENT '시작일',
     end_date    DATETIME      NOT NULL COMMENT '종료일',
-    created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+    created_at  DATETIME    DEFAULT CURRENT_TIMESTAMP,
+    status      VARCHAR(20) DEFAULT 'ACTIVE' COMMENT '상태 (ACTIVE: 진행중, DELETED: 삭제됨)',
+
+    CONSTRAINT fk_challenges_creator FOREIGN KEY (creator_id) REFERENCES users (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE challenge_participations
@@ -128,6 +134,20 @@ CREATE TABLE challenge_participations
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     FOREIGN KEY (challenge_id) REFERENCES challenges (id) ON DELETE CASCADE,
     UNIQUE KEY unique_participation (user_id, challenge_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 챌린지 참여 로그
+CREATE TABLE challenge_daily_logs
+(
+    id           BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id      BIGINT NOT NULL,
+    challenge_id BIGINT NOT NULL,
+    log_date     DATE   NOT NULL,
+    created_at   DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_log (user_id, challenge_id, log_date),
+
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (challenge_id) REFERENCES challenges (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 게시글 테이블

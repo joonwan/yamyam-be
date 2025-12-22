@@ -39,7 +39,6 @@ out/
 application.yaml
 application-test.yaml
 application-dev.yaml
-compose.yaml
 mysql_data
 
 ### Custom ###
