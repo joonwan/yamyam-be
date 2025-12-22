@@ -46,12 +46,29 @@ public class ChallengeService {
     // 참여
     @Transactional
     public void joinChallenge(Long userId, Long challengeId) {
-        if (challengeRepository.existsParticipation(userId, challengeId)) {
-            throw new IllegalArgumentException("이미 참여 중입니다.");
+        // 1. 기존 기록이 있는지 확인 (상태 무관)
+        ChallengeParticipation existing = challengeMapper.findHistory(userId, challengeId);
+
+        if (existing != null) {
+            // 1-1. 이미 진행 중인 경우 -> 에러
+            if ("PROGRESS".equals(existing.getStatus())) {
+                throw new IllegalArgumentException("이미 참여 중입니다.");
+            }
+            // 1-2. 포기했던(STOPPED) 경우 -> 상태를 다시 PROGRESS로 변경 (재참여)
+            else {
+                challengeRepository.updateParticipationStatus(userId, challengeId, "PROGRESS");
+                // (선택사항) 재참여 시 시작일을 오늘로 갱신하고 싶다면 별도 update 쿼리 필요
+            }
+        } else {
+            // 2. 기록이 아예 없는 경우 -> 새로 INSERT
+            ChallengeParticipation p = ChallengeParticipation.builder()
+                    .userId(userId)
+                    .challengeId(challengeId)
+                    .status("PROGRESS")
+                    .created_at(LocalDateTime.now())
+                    .build();
+            challengeRepository.saveParticipation(p);
         }
-        ChallengeParticipation p = ChallengeParticipation.builder()
-                .userId(userId).challengeId(challengeId).status("PROGRESS").created_at(LocalDateTime.now()).build();
-        challengeRepository.saveParticipation(p);
     }
 
     // 포기
@@ -107,16 +124,23 @@ public class ChallengeService {
 
     // [2] 오늘 성공 체크 토글
     @Transactional
-    public void toggleDailyLog(Long challengeId, Long userId) {
-        LocalDate today = LocalDate.now();
+    public void toggleDailyLog(Long challengeId, Long userId, String dateStr) {
+        // 문자열을 LocalDate로 변환 (예: "2025-01-01")
+        LocalDate targetDate = LocalDate.parse(dateStr);
 
-        if (challengeMapper.existsLog(challengeId, userId, today)) {
-            challengeMapper.deleteDailyLog(challengeId, userId, today);
+        // 미래 날짜는 체크 불가능하게 막기 (유효성 검사)
+        if (targetDate.isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException("미래의 날짜는 기록할 수 없습니다.");
+        }
+
+        // 해당 날짜에 기록이 있으면 삭제, 없으면 저장
+        if (challengeMapper.existsLog(challengeId, userId, targetDate)) {
+            challengeMapper.deleteDailyLog(challengeId, userId, targetDate);
         } else {
             ChallengeDailyLog log = ChallengeDailyLog.builder()
                     .userId(userId)
                     .challengeId(challengeId)
-                    .logDate(today)
+                    .logDate(targetDate)
                     .build();
             challengeMapper.saveDailyLog(log);
         }

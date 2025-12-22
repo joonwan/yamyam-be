@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/challenges")
@@ -65,9 +66,11 @@ public class ChallengeController {
     @PostMapping("/{id}/check")
     public ResponseEntity<Void> toggleCheck(
             @PathVariable Long id,
+            @RequestBody Map<String, String> request, // 날짜를 받기 위해 추가
             @LoginUser User user
     ) {
-        challengeService.toggleDailyLog(id, user.getId());
+        String dateStr = request.get("date");
+        challengeService.toggleDailyLog(id, user.getId(), dateStr);
         return ResponseEntity.ok().build();
     }
 }

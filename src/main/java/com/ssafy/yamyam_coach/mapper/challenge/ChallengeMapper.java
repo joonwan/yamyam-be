@@ -39,4 +39,6 @@ public interface ChallengeMapper {
 
     // [추가] 오늘 이미 체크했는지 확인
     boolean existsLog(@Param("challengeId") Long challengeId, @Param("userId") Long userId, @Param("logDate") LocalDate logDate);
+
+    ChallengeParticipation findHistory(@Param("userId") Long userId, @Param("challengeId") Long challengeId);
 }

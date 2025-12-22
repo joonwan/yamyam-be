@@ -73,4 +73,9 @@
         )
     </select>
 
+    <select id="findHistory" resultType="com.ssafy.yamyam_coach.domain.challenge_participation.ChallengeParticipation">
+        SELECT * FROM challenge_participations
+        WHERE user_id = #{userId} AND challenge_id = #{challengeId}
+    </select>
+
 </mapper>
