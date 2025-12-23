@@ -76,4 +76,12 @@ public class MyBatisDailyDietRepository implements DailyDietRepository {
         return dailyDietMapper.findAllById(ids);
     }
 
+    @Override
+    public List<DailyDietDetail> findAllByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return dailyDietMapper.findAllByIds(ids);
+    }
+
 }

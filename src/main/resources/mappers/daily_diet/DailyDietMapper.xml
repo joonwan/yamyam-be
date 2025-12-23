@@ -148,4 +148,40 @@
         #{id}
     </foreach>
     </select>
+
+    <select id="findAllByIds" resultMap="dailyDietDetailMap">
+        SELECT dd.id                   as dd_id,
+        dd.diet_plan_id         as dd_diet_plan_id,
+        dd.date                 as dd_date,
+        dd.description          as dd_description,
+
+        m.id                    as m_id,
+        m.type                  as m_type,
+
+        mf.id                   as mf_id,
+        mf.quantity             as mf_quantity,
+
+        f.id                    as f_id,
+        f.name                  as f_name,
+        f.category              as f_category,
+        f.base_unit             as f_base_unit,
+        f.energy_per_100        as f_energy_per_100,
+        f.protein_per_100       as f_protein_per_100,
+        f.fat_per_100           as f_fat_per_100,
+        f.carbohydrate_per_100  as f_carbohydrate_per_100,
+        f.sugar_per_100         as f_sugar_per_100,
+        f.sodium_per_100        as f_sodium_per_100,
+        f.cholesterol_per_100   as f_cholesterol_per_100,
+        f.saturated_fat_per_100 as f_saturated_fat_per_100,
+        f.trans_fat_per_100     as f_trans_fat_per_100
+        FROM daily_diets dd
+        LEFT JOIN meals m ON dd.id = m.daily_diet_id
+        LEFT JOIN meal_foods mf ON m.id = mf.meal_id
+        LEFT JOIN foods f ON mf.food_id = f.id
+        WHERE dd.id IN
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY dd.date ASC, m.id ASC, mf.id ASC
+    </select>
 </mapper>

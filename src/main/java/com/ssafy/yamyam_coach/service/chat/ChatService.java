@@ -7,6 +7,10 @@ import com.ssafy.yamyam_coach.domain.daily_diet.DailyDiet;
 import com.ssafy.yamyam_coach.repository.body_spec.BodySpecRepository;
 import com.ssafy.yamyam_coach.repository.challenge.ChallengeRepository;
 import com.ssafy.yamyam_coach.repository.daily_diet.DailyDietRepository;
+import com.ssafy.yamyam_coach.service.daily_diet.DailyDietService;
+import com.ssafy.yamyam_coach.service.daily_diet.response.DailyDietDetailResponse;
+import com.ssafy.yamyam_coach.service.daily_diet.response.MealDetailResponse;
+import com.ssafy.yamyam_coach.service.daily_diet.response.MealFoodDetailResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.document.Document;
@@ -41,6 +45,8 @@ public class ChatService {
     private final ChatClient chatClient;
     private final VectorStore vectorStore;
 
+
+    private final DailyDietService dailyDietService;
     // Repository 주입
     private final BodySpecRepository bodySpecRepository;
     private final DailyDietRepository dailyDietRepository;
@@ -90,15 +96,23 @@ public class ChatService {
 
         // B. 식단 정보
         if (req.getDailyDietIds() != null && !req.getDailyDietIds().isEmpty()) {
-            List<DailyDiet> diets = dailyDietRepository.findAllById(req.getDailyDietIds());
+            List<DailyDietDetailResponse> responses = dailyDietService.getDailyDietListByIds(req.getDailyDietIds());
+
             sb.append("[식단 기록]\n");
-            for (DailyDiet d : diets) {
-                sb.append(String.format("<날짜: %s>\n", d.getDate()));
-                // ★ 중요: 엔티티 구조에 맞춰서 상세 내용을 문자열로 만들어주세요
-                // 예: d.getMeals()를 순회하며 음식 이름과 칼로리 추가
-                sb.append("  (상세 식단 내용...)\n");
+            for (DailyDietDetailResponse res : responses) {
+                // 날짜와 요일, 메모 출력
+                sb.append(String.format("📅 날짜: %s (%s)", res.getDate(), res.getDayOfWeek()));
+                if (res.getDescription() != null) sb.append(" - 메모: ").append(res.getDescription());
+                sb.append("\n");
+
+                // 끼니별 상세 정보 출력 (코드가 깔끔해짐)
+                appendMealInfo(sb, "아침", res.getBreakfast());
+                appendMealInfo(sb, "점심", res.getLunch());
+                appendMealInfo(sb, "저녁", res.getDinner());
+                appendMealInfo(sb, "간식", res.getSnack());
+
+                sb.append("\n"); // 하루 기록 끝마다 줄바꿈
             }
-            sb.append("\n");
         }
 
         // C. 챌린지 정보
@@ -111,5 +125,45 @@ public class ChatService {
         }
 
         return sb.toString();
+    }
+
+    private void appendMealInfo(StringBuilder sb, String mealName, MealDetailResponse meal) {
+        // 1. 식단 정보가 없거나, 상세 음식 리스트가 비어있으면 아무것도 출력 안 하고 종료
+        if (meal == null || meal.getMealFoods() == null || meal.getMealFoods().isEmpty()) {
+            return;
+        }
+
+        // 2. 총 칼로리 계산 (DTO에 합계 필드가 없으므로 직접 계산해야 함)
+        double totalMealCalories = 0.0;
+
+        for (MealFoodDetailResponse food : meal.getMealFoods()) {
+            // NullPointerException 방지를 위한 안전한 값 추출 (0.0 처리)
+            double quantity = food.getQuantity() != null ? food.getQuantity() : 0.0;
+            double energyPer100 = food.getEnergyPer100() != null ? food.getEnergyPer100() : 0.0;
+
+            // 칼로리 공식: (섭취량 / 100) * 100g당 칼로리
+            totalMealCalories += (quantity / 100.0) * energyPer100;
+        }
+
+        // 3. 헤더 출력 -> 예: "  [아침] (총 520kcal)"
+        sb.append(String.format("  [%s] (총 %.0fkcal)\n", mealName, totalMealCalories));
+
+        // 4. 상세 음식 리스트 출력
+        for (MealFoodDetailResponse food : meal.getMealFoods()) {
+            double quantity = food.getQuantity() != null ? food.getQuantity() : 0.0;
+            double energyPer100 = food.getEnergyPer100() != null ? food.getEnergyPer100() : 0.0;
+
+            // 개별 음식 칼로리 계산
+            double foodCalories = (quantity / 100.0) * energyPer100;
+
+            // 예: "    - 현미밥 210g (300kcal)"
+            // baseUnit은 Enum일 경우 .toString()이 호출됨 (예: GRAM -> "GRAM" or "g")
+            sb.append(String.format("    - %s %.0f%s (%.0fkcal)\n",
+                    food.getFoodName(),   // 음식 이름
+                    quantity,             // 섭취량
+                    food.getUnit(),   // 단위
+                    foodCalories          // 계산된 칼로리
+            ));
+        }
     }
 }

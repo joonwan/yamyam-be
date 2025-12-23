@@ -29,4 +29,6 @@ public interface DailyDietRepository {
     int deleteByDietPlanAndDateInBatch(Long dietPlanId, List<LocalDate> datesToDelete);
 
     List<DailyDiet> findAllById(List<Long> ids);
+
+    List<DailyDietDetail> findAllByIds(List<Long> ids);
 }

@@ -22,10 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.TextStyle;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -290,5 +287,49 @@ public class DailyDietService {
                 .mealFoods(mealFoods)
                 .build();
 
+    }
+
+    // =========================================================
+    // 👇 [NEW] ChatService 연동을 위해 추가된 메서드들 (기존 로직 영향 X)
+    // =========================================================
+
+    // 1. ID 목록으로 식단 상세 리스트 조회 (ChatService에서 호출)
+    public List<DailyDietDetailResponse> getDailyDietListByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // DB에서 엔티티 리스트 조회 (Repository에 findAllByIds 메서드 필요)
+        List<DailyDietDetail> entities = dailyDietRepository.findAllByIds(ids);
+
+        // 변환 로직 수행
+        return entities.stream()
+                .map(this::convertToResponseForChat)
+                .collect(Collectors.toList());
+    }
+
+    // 2. 엔티티 -> DTO 변환 로직 (기존 getDailyDietDetailByDietPlan 로직을 복사해서 독립적으로 생성)
+    private DailyDietDetailResponse convertToResponseForChat(DailyDietDetail dailyDietDetail) {
+        // 식사 타입별로 맵핑
+        Map<MealType, MealDetail> mealDetailByType = dailyDietDetail.getMeals().stream()
+                .collect(Collectors.toMap(MealDetail::getType, Function.identity()));
+
+        // 끼니별 상세 정보 추출 (기존에 존재하는 extractMealFoodDetailsByType 메서드 재사용)
+        MealDetailResponse breakfast = extractMealFoodDetailsByType(mealDetailByType, BREAKFAST);
+        MealDetailResponse lunch = extractMealFoodDetailsByType(mealDetailByType, LUNCH);
+        MealDetailResponse dinner = extractMealFoodDetailsByType(mealDetailByType, DINNER);
+        MealDetailResponse snack = extractMealFoodDetailsByType(mealDetailByType, SNACK);
+
+        // 결과 빌드 및 반환
+        return DailyDietDetailResponse.builder()
+                .dailyDietId(dailyDietDetail.getId())
+                .date(dailyDietDetail.getDate())
+                .dayOfWeek(dailyDietDetail.getDate().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.KOREAN))
+                .description(dailyDietDetail.getDescription())
+                .breakfast(breakfast)
+                .lunch(lunch)
+                .dinner(dinner)
+                .snack(snack)
+                .build();
     }
 }

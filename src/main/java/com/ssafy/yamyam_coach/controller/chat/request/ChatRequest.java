@@ -1,17 +1,11 @@
 package com.ssafy.yamyam_coach.controller.chat.request;
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
-@Getter
-@NoArgsConstructor
-@ToString
 public class ChatRequest {
 
     private List<Long> bodySpecIds;   // 선택한 신체 정보 ID 목록
