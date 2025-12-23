@@ -37,6 +37,11 @@ public class FoodService {
                 .category(food.getCategory())
                 .baseUnit(food.getBaseUnit())
                 .caloriePer100(food.getEnergyPer100())
+                .proteinPer100(food.getProteinPer100())
+                .carbohydratePer100(food.getCarbohydratePer100())
+                .fatPer100(food.getFatPer100())
+                .sugarPer100(food.getSugarPer100())
+                .sodiumPer100(food.getSodiumPer100())
                 .build();
     }
 }
