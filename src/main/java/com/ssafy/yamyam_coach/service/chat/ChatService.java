@@ -49,7 +49,6 @@ public class ChatService {
     private final DailyDietService dailyDietService;
     // Repository 주입
     private final BodySpecRepository bodySpecRepository;
-    private final DailyDietRepository dailyDietRepository;
     private final ChallengeRepository challengeRepository;
 
     public String request(Long userId, ChatRequest request) {
@@ -68,7 +67,7 @@ public class ChatService {
 
         // 2. [Context Injection] 선택된 ID로 DB 조회 -> 문자열 변환
         String userContext = buildUserContext(request);
-
+        System.out.println(userContext);
         // 3. [LLM] AI 호출
         return chatClient.prompt()
                 .user(u -> u.text(promptTemplate)
@@ -128,41 +127,55 @@ public class ChatService {
     }
 
     private void appendMealInfo(StringBuilder sb, String mealName, MealDetailResponse meal) {
-        // 1. 식단 정보가 없거나, 상세 음식 리스트가 비어있으면 아무것도 출력 안 하고 종료
+        // 1. 식단 정보가 없거나, 상세 음식 리스트가 비어있으면 종료
         if (meal == null || meal.getMealFoods() == null || meal.getMealFoods().isEmpty()) {
             return;
         }
 
-        // 2. 총 칼로리 계산 (DTO에 합계 필드가 없으므로 직접 계산해야 함)
-        double totalMealCalories = 0.0;
+        // 2. 총 영양소 계산을 위한 변수 초기화
+        double totalCalories = 0.0;
+        double totalCarbo = 0.0; // 탄수화물
+        double totalProtein = 0.0; // 단백질
+        double totalFat = 0.0; // 지방
 
+        // 3. 리스트를 순회하며 총합 계산 (헤더를 먼저 찍어야 해서 계산이 선행되어야 함)
         for (MealFoodDetailResponse food : meal.getMealFoods()) {
-            // NullPointerException 방지를 위한 안전한 값 추출 (0.0 처리)
+            // NullPointerException 방지 (0.0 처리)
             double quantity = food.getQuantity() != null ? food.getQuantity() : 0.0;
-            double energyPer100 = food.getEnergyPer100() != null ? food.getEnergyPer100() : 0.0;
+            double ratio = quantity / 100.0; // 섭취 비율 (100g 기준)
 
-            // 칼로리 공식: (섭취량 / 100) * 100g당 칼로리
-            totalMealCalories += (quantity / 100.0) * energyPer100;
+            // 각 영양소 데이터 null 체크
+            double energy = food.getEnergyPer100() != null ? food.getEnergyPer100() : 0.0;
+            double carbo = food.getCarbohydratePer100() != null ? food.getCarbohydratePer100() : 0.0;
+            double protein = food.getProteinPer100() != null ? food.getProteinPer100() : 0.0;
+            double fat = food.getFatPer100() != null ? food.getFatPer100() : 0.0;
+
+            // 누적 계산
+            totalCalories += ratio * energy;
+            totalCarbo += ratio * carbo;
+            totalProtein += ratio * protein;
+            totalFat += ratio * fat;
         }
 
-        // 3. 헤더 출력 -> 예: "  [아침] (총 520kcal)"
-        sb.append(String.format("  [%s] (총 %.0fkcal)\n", mealName, totalMealCalories));
+        // 4. 헤더 출력 (총 칼로리 + 탄단지 정보 포함)
+        // 예: "  [아침] (총 520kcal | 탄: 50g, 단: 20g, 지: 10g)"
+        sb.append(String.format("  [%s] (총 %.0fkcal | 탄수화물: %.0fg, 단백질: %.0fg, 지방: %.0fg)\n",
+                mealName, totalCalories, totalCarbo, totalProtein, totalFat));
 
-        // 4. 상세 음식 리스트 출력
+        // 5. 상세 음식 리스트 출력
         for (MealFoodDetailResponse food : meal.getMealFoods()) {
             double quantity = food.getQuantity() != null ? food.getQuantity() : 0.0;
             double energyPer100 = food.getEnergyPer100() != null ? food.getEnergyPer100() : 0.0;
 
-            // 개별 음식 칼로리 계산
+            // 개별 음식 칼로리
             double foodCalories = (quantity / 100.0) * energyPer100;
 
             // 예: "    - 현미밥 210g (300kcal)"
-            // baseUnit은 Enum일 경우 .toString()이 호출됨 (예: GRAM -> "GRAM" or "g")
             sb.append(String.format("    - %s %.0f%s (%.0fkcal)\n",
-                    food.getFoodName(),   // 음식 이름
-                    quantity,             // 섭취량
-                    food.getUnit(),   // 단위
-                    foodCalories          // 계산된 칼로리
+                    food.getFoodName(),
+                    quantity,
+                    food.getUnit(),
+                    foodCalories
             ));
         }
     }
